@@ -1,0 +1,65 @@
+<Workflow name="Qmasters CarbonBlack" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V1">
+    <Parameters>
+		<Parameter name="hostname" label="Host Name" required="true" />
+		<Parameter name="org_key" label="Organization Key" required="true" />
+		<Parameter name="api_secret" label="API Secret" required="true" secret="true" />
+		<Parameter name="api_id" label="API Key" required="true" secret="true" />
+    </Parameters>
+	
+    <Actions>
+		<!-- Clear the log source status before a new workflow run starts -->
+        <ClearStatus />
+		
+		<Initialize path="/bookmark" value="${time() - 604800000}" />
+		
+        <!-- Prepare the start date filter, based on the current bookmark -->
+        <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" time="${/bookmark}" timeZone="UTC" savePath="/start_date" />
+        <!-- Prepare the end date filter, which is the current time. -->
+        <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" timeZone="UTC" savePath="/end_date" />
+		
+		<!-- Get the Events -->				
+		<CallEndpoint url="${/hostname}/appservices/v6/orgs/${/org_key}/alerts/_search" method="POST" savePath="/get_events" >
+			<RequestHeader name="X-Auth-Token" value="${/api_secret}/${/api_id}" />
+			<RequestBody type="application/json" encoding="UTF-8">
+				{
+					"criteria": {
+						"last_update_time": {
+							"start": "${/start_date}",
+							"end": "${/end_date}"
+						}
+					},
+					"sort": [
+						{
+							"field": "last_update_time",
+							"order": "ASC"
+						}
+					],
+					"start": 0,
+					"rows": 10000
+				}
+			</RequestBody>
+		</CallEndpoint>
+		
+		<!-- Handle Errors -->
+        <If condition="/get_events/status_code != 200">
+            <Abort reason="${/get_events}" />
+			<Log type="ERROR" message="CarbonBlack abort reason:${/get_events}" />
+        </If>
+		
+        <!-- Post Events, if any -->
+        <If condition="count(/get_events/body/results) > 0">
+			<PostEvents path="/get_events/body/results" source="${/hostname}" />
+			
+			<!-- Update the bookmark -->
+            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" timeZone="UTC" date="${max(/get_events/body/results/last_update_time)}" savePath="/last_event_time" />
+            <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" timeZone="UTC" time="${/last_event_time + 1}" savePath="/bookmark" />
+			<ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" timeZone="UTC" date="${/bookmark}" savePath="/bookmark" />
+        </If>
+	</Actions>
+	
+    <Tests>
+        <DNSResolutionTest host="${/hostname}" />
+        <TCPConnectionTest host="${/hostname}" />
+        <SSLHandshakeTest host="${/hostname}" />
+    </Tests>
+</Workflow>
