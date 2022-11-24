@@ -32,7 +32,7 @@
 		<!-- Clear the log source status before a new workflow run starts. -->
         <ClearStatus />
 		<!-- Get Bearer Token. -->
-		<CallEndpoint url="https://${/hostname}/v2/apis/auth/oauth/token" method="POST" savePath="/get_bearer_token" >
+		<CallEndpoint url="${/hostname}/v2/apis/auth/oauth/token" method="POST" savePath="/get_bearer_token" >
             <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
 			<UrlEncodedFormRequestBody>
                 <Parameter name="grant_type" value="client_credentials" />
@@ -130,7 +130,7 @@
                 path="/piis_to_exclude" />
 
                 <!-- Get a report type fields. -->
-                <CallEndpoint url="https://${/hostname}/v2/apis/report;realm=observeit/reports/${/report_type}" method="GET" savePath="/get_${/report_type}_fields" >
+                <CallEndpoint url="${/hostname}/v2/apis/report;realm=observeit/reports/${/report_type}" method="GET" savePath="/get_${/report_type}_fields" >
                     <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
                     <BearerAuthentication token="${/bearer_token}" />
                 </CallEndpoint>
@@ -181,7 +181,7 @@
             </If>
 
             <!-- Get the reports. -->
-            <CallEndpoint url="https://${/hostname}/v2/apis/report;realm=observeit/reports/${/report_type}/data" method="GET" savePath="/get_${/report_type}_reports" >
+            <CallEndpoint url="${/hostname}/v2/apis/report;realm=observeit/reports/${/report_type}/data" method="GET" savePath="/get_${/report_type}_reports" >
                 <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
                 <BearerAuthentication token="${/bearer_token}" />
                 <QueryParameter name="rql"
