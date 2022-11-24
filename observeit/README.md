@@ -1,7 +1,7 @@
 # ObserveIT Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
 ---                                 | --- | --- | --- |--- |---
-hostname                            | Host Name | myobserveit.com | String | True | IP for the instance.
+hostname                            | Host Name | https://myobserveit.com | String | True | IP for the instance.
 client_id                           | Organization Key | False | Authentication | True | Can be received through the Developer Portal by selecting Credentials and pressing the Create App button.
 client_secret                       | API Secret | False | Authentication | True | Can be received through the Developer Portal by selecting Credentials and pressing the Create App button.
 poll_alert                          | Poll Alert | False | Bool | False | Alert Events.
