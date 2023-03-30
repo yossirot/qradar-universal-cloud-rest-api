@@ -1,4 +1,4 @@
-# Rapid& ThreatCommand Parameters Configuration
+# Rapid7 ThreatCommand Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
 ---                                 | --- | --- | --- |--- |---
 hostname                            | Host Name | https://api.ti.insight.rapid7.com | String | True | IP or URL for the instance.
