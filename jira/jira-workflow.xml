@@ -56,9 +56,8 @@
                 <PostEvents path="/get_alerts/body/issues" source="${/api_host}" />
 
                 <!-- Update the bookmark -->
-                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/issues[0]/fields/created)}" savePath="/last_event_time" />
-            <Log type="info" message="${/last_event_time}"/>
-                <Set path="/bookmark" value="${/last_event_time + 1}" />
+                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/issues/fields/created)}" savePath="/last_event_time" />
+                <Set path="/bookmark" value="${/last_event_time + 60000}" />
 
             </If>
     </Actions>	
