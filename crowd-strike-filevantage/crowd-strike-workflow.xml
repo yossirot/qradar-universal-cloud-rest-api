@@ -1,0 +1,108 @@
+<Workflow name="Qmasters CrowdStrike File Vantage workflow for QRadar" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V1">
+    <Parameters>
+        <Parameter name="hostname" label="Host Name" required="true" />
+        <Parameter name="client_id" label="Account ID" required="true" secret="true" />
+        <Parameter name="client_secret" label="API Key" required="true" secret="true" />
+    </Parameters>
+               
+    <Actions>
+        <!-- Clear the log source status before a new workflow run starts -->
+        <ClearStatus />
+        
+        <!-- Get the token -->            
+        <CallEndpoint url="${/hostname}/oauth2/token" method="POST" savePath="/get_access_token">
+            <RequestHeader name="Accept" value="application/json" />
+            <RequestHeader name="Content-Type" value="application/x-www-form-urlencoded" />
+            <UrlEncodedFormRequestBody>
+                <Parameter name="client_id" value="${/client_id}" />
+                <Parameter name="client_secret" value="${/client_secret}" />
+            </UrlEncodedFormRequestBody>
+        </CallEndpoint>
+        <Log type="info" message="1 ${/get_access_token}" />
+
+        <!-- Handle errors. -->
+        <If condition="/get_access_token/status_code != 201">
+            <If condition="/get_access_token/status_code = 403">
+                <Abort reason="Invalid CrowdStrike API Key"/>
+                <Log type="ERROR" message="CrowdStrike abort at get token, reason: Invalid CrowdStrike API Key"/>
+            </If>
+
+            <If condition="/get_access_token/status_code >= 500">
+                <Abort reason="CrowdStrike API is not available"/>
+                <Log type="ERROR" message="CrowdStrike abort at get token, reason: CrowdStrike API is not available"/>
+            </If>
+
+            <Abort reason="CrowdStrike abort reason: ${/get_access_token}"/>
+                <Log type="ERROR" message="CrowdStrike abort at get token, reason: ${/get_access_token}"/>
+        </If>
+
+        <!-- Initialize a list to contain all alerts -->
+        <Set path="/events" value="[]" />
+        <Set path="/times" value="[]" />
+
+        <!-- Set the token -->
+        <Set path="/bearer_token" value="${/get_access_token/body/access_token}" />
+
+        <!-- Prepare the start time filter, based on the current bookmark -->
+        <Initialize path="/bookmark" value="${time() - 604800000}" />
+        <!-- Prepare the start time filter, based on the current bookmark -->
+        <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" time="${/bookmark}" timeZone="UTC" savePath="/start_time" />
+
+        <!-- Get Events List -->                                                 
+        <CallEndpoint url="${/hostname}/filevantage/queries/changes/v2" method="GET" savePath="/get_events_list" >
+        <QueryParameter name="filter" value="action_timestamp:>'2023-03-13T08:30:18Z'" />
+            <RequestHeader name="Accept" value="application/json" />
+            <RequestHeader name="Authorization" value="Bearer ${/bearer_token}" />                        
+        </CallEndpoint>
+        <Log type="info" message="2 ${/get_events_list}" />
+
+        <!-- Handle Errors -->
+        <If condition="/get_events_list/status_code != 200">
+            <If condition="/get_events_list/status_code = 403" >
+                <Abort reason="Invalid CrowdStrike API Key" />
+            </If>
+
+            <If condition="/get_events_list/status_code >= 500" >
+                <Abort reason="CrowdStrike API is not available" />
+		    </If>
+
+		    <Abort reason="CrowdStrike abort reason:  ${/get_events_list}" />
+	    </If> 
+
+        <!-- Get Alerts -->    
+        <ForEach item="/resource" items="/get_events_list/body/resources">
+            <CallEndpoint url="${/hostname}/filevantage/entities/changes/v2?ids=${/resource}" method="GET" savePath="/get_event_${/resource}" >
+                <RequestHeader name="Accept" value="application/json" />
+                <RequestHeader name="Authorization" value="Bearer ${/bearer_token}" />
+            </CallEndpoint>
+
+            <ForEach item="/event" items="/get_event_${/resource}">
+                <Add path="/events" value="${/get_event_${/resource}/body/resources}" />
+                <Add path="/times" value="${/get_event_${/resource}/body/resources/action_timestamp}" />
+            </ForEach>
+            
+            <Log type="info" message="2.5 ${/get_event_${/resource}/body/resources/action_timestamp}" />
+
+        </ForEach>
+                        <Log type="info" message="3 ${/events/action_timestamp}" />
+                        <Log type="info" message="4 ${/times}" />
+
+        <!-- Post Event, if any -->
+        <If condition="count(/events) > 0">
+            <PostEvents path="/events" source="${/hostname}" />
+
+            <!-- Update the bookmark -->
+            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timeZone="UTC" date="${max(/events/action_timestamp)}" savePath="/last_event_time" />
+            <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss.'Z'" timeZone="UTC" time="${/last_event_time + 1}" savePath="/bookmark" />
+            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timeZone="UTC" date="${/bookmark}" savePath="/bookmark" />
+        </If>
+    
+    </Actions>
+
+    <Tests>
+        <DNSResolutionTest host="${/hostname}" />
+        <TCPConnectionTest host="${/hostname}" />
+        <SSLHandshakeTest host="${/hostname}" />
+        <HTTPConnectionThroughProxyTest url="${/hostname}" expectedResponseStatus="404" />
+    </Tests>
+</Workflow>
