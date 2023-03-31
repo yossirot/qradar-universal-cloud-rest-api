@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
+
+	<!-- "api_host" - Jira API host.-->
+	<Value name="api_host" value="https://strongholdservices.atlassian.net"/>
+	<!-- "user_email" - User email address (required) -->
+	<Value name="user_email" value="<insert your email here>"/>
+	<!-- "api_token" - Jira API token for QRadar (required) -->
+	<Value name="api_token" value="<insert your token here>"/>
+
+	<!-- "jql" - insert your jql query. (optional) -->
+	<Value name="jql" value="type = offense"/>
+
+	<!-- "max_results" - Max number of alerts to return per poll (Default=100). (optional) -->
+	<Value name="max_results" value="10"/>
+	<!-- "time_zone" - select your time zone (Default=UTC). (optional) -->
+	<Value name="time_zone" value="UTC"/>
+</WorkflowParameterValues>

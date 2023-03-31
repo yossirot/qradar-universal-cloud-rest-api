@@ -1,0 +1,8 @@
+# Jira Parameters Configuration
+Parameter	     | Name	| Default Value	| Type | Required (True/False) | Description
+api_host	     | Jira API Host | https://<your company>.atlassian.net | String	| True | Jira API Host URL.
+user_email	     | User Email Address | N/A |	String	| True | Email address of the Jira user.
+api_token	     | Jira API Token | N/A	| Authentication | True	| Jira API token for QRadar.
+jql	             | JQL Query |	N/A | String | False | Jira Query Language (JQL) query for filtering the results.
+max_results	     | Max Results | 100 | Integer | False | Maximum number of alerts to return per poll.
+time_zone	     | Time Zone | UTC | String | False | Time zone to use for Jira instance.
