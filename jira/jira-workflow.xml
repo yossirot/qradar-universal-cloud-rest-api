@@ -25,7 +25,7 @@
             <RequestHeader name="Content-Type" value="application/json" />
             <RequestBody type="application/json" encoding="UTF-8">
                 {
-                    "jql": "${/jql} AND created >= '${/start_date}'",
+                    "jql": "${/jql} AND created > '${/start_date}'",
                     "maxResults": ${/max_results}
                 }
             </RequestBody>
@@ -56,7 +56,7 @@
                 <PostEvents path="/get_alerts/body/issues" source="${/api_host}" />
 
                 <!-- Update the bookmark -->
-                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/issues/fields/created)}" savePath="/last_event_time" />
+                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/issues[0]/fields/created)}" savePath="/last_event_time" />
             <Log type="info" message="${/last_event_time}"/>
                 <Set path="/bookmark" value="${/last_event_time + 1}" />
 
