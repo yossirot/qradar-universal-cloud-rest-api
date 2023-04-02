@@ -2,7 +2,7 @@
 <WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
 
 	<!-- "api_host" - Jira API host.-->
-	<Value name="api_host" value="https://strongholdservices.atlassian.net"/>
+	<Value name="api_host" value="https://<your company>.atlassian.net"/>
 	<!-- "user_email" - User email address (required) -->
 	<Value name="user_email" value="<insert your email here>"/>
 	<!-- "api_token" - Jira API token for QRadar (required) -->
