@@ -3,7 +3,6 @@
         <Parameter name="api_host" label="Host Name" required="true" />
         <Parameter name="user_email" label="User Email" required="true" secret="false" />
         <Parameter name="api_token" label="API Token" required="true" secret="true" />
-        <Parameter name="jql" label="JQL" required="false" default="" />
         <Parameter name="max_results" label="Page Size" required="false" default="100" />
         <Parameter name="time_zone" label="Time Zone" required="false" default="UTC" />
     </Parameters>
@@ -16,19 +15,17 @@
         <Initialize path="/bookmark" value="${time() - 604800000}" />
 
         <!-- Prepare the start date filter, based on the current bookmark -->
-        <FormatDate pattern="yyyy/MM/dd HH:mm" time="${/bookmark}" timeZone="${/time_zone}" savePath="/start_date" />
+        <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss[.SSS]" time="${/bookmark}" timeZone="${/time_zone}" savePath="/start_date" />
 
         <!-- Get Alerts -->				
-        <CallEndpoint url="${/api_host}/rest/api/3/search" method="POST" savePath="/get_alerts" >
+        <CallEndpoint url="${/api_host}/rest/api/3/auditing/record" method="GET" savePath="/get_alerts" >
             <BasicAuthentication username="${/user_email}" password="${/api_token}" />
             <RequestHeader name="Accept" value="application/json" />
             <RequestHeader name="Content-Type" value="application/json" />
-            <RequestBody type="application/json" encoding="UTF-8">
-                {
-                    "jql": "${/jql} AND created > '${/start_date}'",
-                    "maxResults": ${/max_results}
-                }
-            </RequestBody>
+            <UrlEncodedFormRequestBody>
+                <Parameter name="limit" value="${/max_results}" />
+                <Parameter name="from" value="${/start_date}" />
+            </UrlEncodedFormRequestBody>
         </CallEndpoint>
 
         <!-- Handle Errors -->
@@ -45,19 +42,19 @@
             </If>
 
             <If condition="/get_alerts/status_code >= 500" >
-                <Abort reason="Fortress API is not available" />
+                <Abort reason="Jira API is not available" />
             </If>
 
-            <Abort reason="Fortress abort reason:  ${/get_alerts}" />
+            <Abort reason="Jira abort reason:  ${/get_alerts}" />
         </If>
 
         <!-- Post Events, if any -->
-            <If condition="count(/get_alerts/body/issues) > 0">
-                <PostEvents path="/get_alerts/body/issues" source="${/api_host}" />
+            <If condition="count(/get_alerts/body/records) > 0">
+                <PostEvents path="/get_alerts/body/records" source="${/api_host}" />
 
                 <!-- Update the bookmark -->
-                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/issues/fields/created)}" savePath="/last_event_time" />
-                <Set path="/bookmark" value="${/last_event_time + 60000}" />
+                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/records/created)}" savePath="/last_event_time" />
+                <Set path="/bookmark" value="${/last_event_time + 1}" />
 
             </If>
     </Actions>	
