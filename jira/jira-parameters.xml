@@ -9,7 +9,7 @@
 	<Value name="api_token" value="<insert your token here>"/>
 
 	<!-- "max_results" - Max number of alerts to return per poll (Default=100). (optional) -->
-	<Value name="max_results" value="10"/>
+	<Value name="max_results" value="100"/>
 	<!-- "time_zone" - select your time zone (Default=UTC). (optional) -->
 	<Value name="time_zone" value="UTC"/>
 </WorkflowParameterValues>
