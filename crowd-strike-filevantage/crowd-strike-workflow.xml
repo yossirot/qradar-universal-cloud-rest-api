@@ -1,16 +1,17 @@
-<Workflow name="Qmasters CrowdStrike File Vantage workflow for QRadar" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V1">
+<Workflow name="Qmasters CrowdStrike File Vantage workflow for QRadar" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
-        <Parameter name="hostname" label="Host Name" required="true" />
+        <Parameter name="api_host" label="Host Name" required="true" />
         <Parameter name="client_id" label="Account ID" required="true" secret="true" />
         <Parameter name="client_secret" label="API Key" required="true" secret="true" />
+        <Parameter name="limit" label="Limit" required="false" default="100" />
     </Parameters>
-               
+
     <Actions>
         <!-- Clear the log source status before a new workflow run starts -->
         <ClearStatus />
         
         <!-- Get the token -->            
-        <CallEndpoint url="${/hostname}/oauth2/token" method="POST" savePath="/get_access_token">
+        <CallEndpoint url="${/api_host}/oauth2/token" method="POST" savePath="/get_access_token">
             <RequestHeader name="Accept" value="application/json" />
             <RequestHeader name="Content-Type" value="application/x-www-form-urlencoded" />
             <UrlEncodedFormRequestBody>
@@ -38,8 +39,8 @@
 
         <!-- Initialize a list to contain all alerts -->
         <Set path="/events" value="[]" />
-        <Set path="/times" value="[]" />
 
+                        
         <!-- Set the token -->
         <Set path="/bearer_token" value="${/get_access_token/body/access_token}" />
 
@@ -47,12 +48,16 @@
         <Initialize path="/bookmark" value="${time() - 604800000}" />
         <!-- Prepare the start time filter, based on the current bookmark -->
         <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" time="${/bookmark}" timeZone="UTC" savePath="/start_time" />
+                        <Log type="info" message="6 ${/start_time}" />
 
         <!-- Get Events List -->                                                 
-        <CallEndpoint url="${/hostname}/filevantage/queries/changes/v2" method="GET" savePath="/get_events_list" >
-        <QueryParameter name="filter" value="action_timestamp:>'2023-03-13T08:30:18Z'" />
+        <CallEndpoint url="${/api_host}/filevantage/queries/changes/v2" method="GET" savePath="/get_events_list" >
+        <QueryParameter name="filter" value="action_timestamp:>'${/start_time}'" />
             <RequestHeader name="Accept" value="application/json" />
-            <RequestHeader name="Authorization" value="Bearer ${/bearer_token}" />                        
+            <RequestHeader name="Authorization" value="Bearer ${/bearer_token}" />
+            <UrlEncodedFormRequestBody>
+                <Parameter name="limit" value="${/limit}" />
+            </UrlEncodedFormRequestBody>                    
         </CallEndpoint>
         <Log type="info" message="2 ${/get_events_list}" />
 
@@ -64,45 +69,38 @@
 
             <If condition="/get_events_list/status_code >= 500" >
                 <Abort reason="CrowdStrike API is not available" />
-		    </If>
+            </If>
 
-		    <Abort reason="CrowdStrike abort reason:  ${/get_events_list}" />
-	    </If> 
+            <Abort reason="CrowdStrike abort reason:  ${/get_events_list}" />
+        </If> 
 
         <!-- Get Alerts -->    
+
         <ForEach item="/resource" items="/get_events_list/body/resources">
-            <CallEndpoint url="${/hostname}/filevantage/entities/changes/v2?ids=${/resource}" method="GET" savePath="/get_event_${/resource}" >
+            <CallEndpoint url="${/api_host}/filevantage/entities/changes/v2?ids=${/resource}" method="GET" savePath="/get_event/${/resource}" >
                 <RequestHeader name="Accept" value="application/json" />
                 <RequestHeader name="Authorization" value="Bearer ${/bearer_token}" />
             </CallEndpoint>
-
-            <ForEach item="/event" items="/get_event_${/resource}">
-                <Add path="/events" value="${/get_event_${/resource}/body/resources}" />
-                <Add path="/times" value="${/get_event_${/resource}/body/resources/action_timestamp}" />
-            </ForEach>
-            
-            <Log type="info" message="2.5 ${/get_event_${/resource}/body/resources/action_timestamp}" />
+            <Add path="/events" value="${/get_event/${/resource}/body/resources[0]}" />
 
         </ForEach>
-                        <Log type="info" message="3 ${/events/action_timestamp}" />
-                        <Log type="info" message="4 ${/times}" />
-
         <!-- Post Event, if any -->
         <If condition="count(/events) > 0">
-            <PostEvents path="/events" source="${/hostname}" />
+            <PostEvents path="/events" source="${/api_host}" />
 
             <!-- Update the bookmark -->
+                                                                        <Log type="info" message="3 ${max(/events/action_timestamp)}" />
             <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timeZone="UTC" date="${max(/events/action_timestamp)}" savePath="/last_event_time" />
-            <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss.'Z'" timeZone="UTC" time="${/last_event_time + 1}" savePath="/bookmark" />
-            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timeZone="UTC" date="${/bookmark}" savePath="/bookmark" />
+            <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSS.'Z'" timeZone="UTC" time="${/last_event_time + 1}" savePath="/bookmark" />
+            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSS.'Z'" timeZone="UTC" date="${/bookmark}" savePath="/bookmark" />
         </If>
     
     </Actions>
 
     <Tests>
-        <DNSResolutionTest host="${/hostname}" />
-        <TCPConnectionTest host="${/hostname}" />
-        <SSLHandshakeTest host="${/hostname}" />
-        <HTTPConnectionThroughProxyTest url="${/hostname}" expectedResponseStatus="404" />
+        <DNSResolutionTest host="${/api_host}" />
+        <TCPConnectionTest host="${/api_host}" />
+        <SSLHandshakeTest host="${/api_host}" />
+        <HTTPConnectionThroughProxyTest url="${/api_host}" expectedResponseStatus="404" />
     </Tests>
 </Workflow>
