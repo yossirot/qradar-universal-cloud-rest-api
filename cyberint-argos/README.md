@@ -1,20 +1,21 @@
-# Rapid7 ThreatCommand Parameters Configuration
+# CyberInt Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
 ---                                 | --- | --- | --- |--- |---
-hostname                            | Host Name | https://api.ti.insight.rapid7.com | String | True | URL for the instance.
-account_id                          | Account ID | False | Authentication | True | Threat Command account ID.
-api_key                             | API Key | False | Authentication | True | Threat Command API key for QRadar.
-severity                            | Severity | "High", "Medium", "Low" | String | False | you can specify the alert severity to pull.
-is_closed                           | Is Closed | True | Bool | False | Change to folse for ignoring closed alerts.
+hostname                            | Host Name | https://\<MyCompuny>.cyberint.io | String | True | URL of your Cyberint instance.
+api_key                             | API Key | False | Authentication | True | Cyberint API token for QRadar.
+severity                            | Severity | "very_high" "high", "medium", "low" | Array of String | False | You can specify the alert severity to pull.
+status                              | Status | "open", "acknowledged", "closed" | Array of String | False | You can specify the alert status to pull.
 
 # How to Generate API token
-1. Log on to your Rapid7 Threat Command instance through: https://api.ti.insight.rapid7.com.
+1. Log on to your Cyberint instance through: https://\<MyCompuny>/cyberint.io.
 
-2. At the left side of the screen press the SETTINGS button and then enter the "Subscription".
+2. At the top right of the screen press the profile button and then enter the "USER SETTINGS".
 
-3. In the Downloads section in the right side press at "Generate API key".
+3. In the user settings press at three doted in the top right.
 
-4. Here you can see your account id and your api key.
+4. Press the "Generate API Token" button.
+
+5. Here you can see your api token.
 
 # QRadar Log Source Configuration
 If you want to ingest data from an endpoint using Universal Rest API Protocol, configure a log source on the QRadar® Console using the Workflow field so that the defined endpoint can communicate with QRadar by using the Universal Rest API protocol.
