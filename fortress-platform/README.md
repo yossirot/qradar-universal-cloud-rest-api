@@ -42,9 +42,9 @@ The parameters XML document specifies the user settings for this log source, inc
 
 10. In the Test protocol parameters window, click Start Test.
 
-10. To fix any errors, click Configure Protocol Parameters. Configure the parameters and click Test Protocol Parameters.
+11. To fix any errors, click Configure Protocol Parameters. Configure the parameters and click Test Protocol Parameters.
 
-11. Click Finish
+12. Click Finish
 
 # Fortress Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
@@ -58,6 +58,6 @@ service_type                        | Service Type | "EDP", "MAIL", "CLOUD_STORA
 page_size                           | page Size | 100 | integer | false | Max number of alerts to return per poll
 time_zone                           | Time Zone | UTC | string | false | Select your time zone
 
+
 # Fortress API Documentation
 https://api-external.fortresscyber.io/
-

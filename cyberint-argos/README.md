@@ -1,6 +1,8 @@
- # Cyberint-Argos API connector for QRadar
+
+# Cyberint-Argos API connector for QRadar
 
 # How to Generate Cyberint API token
+
 1. Log on to your Cyberint instance through: https://\<MyCompuny>/cyberint.io.
 
 2. At the top right of the screen press the profile button and then enter the "USER SETTINGS".
@@ -38,11 +40,11 @@ The parameters XML document specifies the user settings for this log source, inc
  - Copy the Workflow Params (make sure your hostname and api_key are populated) into the Workflow Parameters Values field;
  - **Make sure to turn off the Coalescing Events to avoid grouping of the events on the basis of Source and Destination IP.**
 
-10. In the Test protocol parameters window, click Start Test.
+11. In the Test protocol parameters window, click Start Test.
 
-10. To fix any errors, click Configure Protocol Parameters. Configure the parameters and click Test Protocol Parameters.
+12. To fix any errors, click Configure Protocol Parameters. Configure the parameters and click Test Protocol Parameters.
 
-11. Click Finish
+13. Click Finish
 
 # CyberInt Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
@@ -54,3 +56,4 @@ status                              | Status | "open", "acknowledged", "closed" 
 
 # Cybeirnt API Documentation:
 https://qmasters-integration.cyberint.io/
+
