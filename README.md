@@ -18,7 +18,7 @@ The Universal Cloud REST API Protocol also includes pre-configured workflows for
 
 
 ## Terminology
-As you configure the Universal Cloud REST API, familiarize yourself with the following terms:
+#### As you configure the Universal Cloud REST API, familiarize yourself with the following terms:
 
 Workflow: An XML document that outlines the event retrieval process. It defines one or more parameters, which can have assigned values within the XML or derive values from the Workflow Parameter Values XML document. The Workflow comprises several actions that run sequentially. When the Workflow is initiated, the parameter values are included in the State. As the Workflow runs, actions can access and modify the State.
 
@@ -26,6 +26,14 @@ Workflow Parameter Values: The input parameters for a Workflow instance, stored 
 
 ## Authors
 At QMasters, we believe in giving back to the community and our customers. As a team that has worked extensively with SIEMs since the start of our journey, we understand the importance of data in effective threat detection and response. We work closely with our customers and vendors to provide them with the tools they need to make the most of their security data. By developing and sharing tools like the QRadar Universal Cloud Rest API, we aim to contribute to the wider security community and help organizations improve their security posture.
+
+## Contributing
+We welcome contributions from the community to improve the QRadar Universal Cloud Rest API. If you have ideas for new features, improvements to existing features, or bug fixes, please feel free to submit a pull request.
+
+Before submitting a pull request, please make sure to review our contributing guidelines, which outline the process for submitting contributions and provide some helpful tips on how to get started.
+
+Thank you for helping to improve the QRadar Universal Cloud Rest API and contribute to the security community!
+
 ## Useful Links
 
  - [IBM GitHub](https://github.com/IBM/IBM-QRadar-Universal-Cloud-REST-API)
