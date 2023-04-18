@@ -1,6 +1,51 @@
+# Jira API connector for QRadar
+
+# How to Generate Jira API token
+1. Log in to https://id.atlassian.com/manage-profile/security/api-tokens.
+
+2. Click Create API token.
+
+3. From the dialog that appears, enter a memorable and concise Label for your token and click Create.
+
+4. Click Copy to clipboard, and save it.
+
+# QRadar Log Source Configuration
+A workflow XML document defines the behavior of the Universal Cloud REST API protocol. To ingest data from an endpoint through the Universal REST API protocol, you can create a log source on the QRadar® Console using the Log Source Management app. In the Workflow field of the log source, you can specify how the endpoint can communicate with QRadar using the Universal REST API protocol.
+
+The parameters XML document specifies the user settings for this log source, including API authentication and relevant configurations.
+
+1. Log in to QRadar and click the admin panel.
+
+2. To create DSM, click the DSM editor app icon.
+
+3. Then click Create New and insert the name (_Jira API_).
+
+4. To create the log source, go to admin panel and click the QRadar Log Source Management app icon.
+
+5. Click New Log Source > Single Log Source.
+
+6. On the Select a Log Source Type page, Select a Log Source Type Jira API.
+
+7. On the Select Protocol Type page, select Universal Cloud REST API.
+
+8. On the Configure the Log Source parameters page, configure the log source name and click Configure Protocol Parameters. 
+
+9. On the Configure the Protocol Parameters page, configure the protocol-specific parameters:
+ - Insert a log source identifier (jira_API);
+ - Copy the Workflow XML you downloaded from GitHub and paste it into the Workflow field;
+ - Copy the Workflow Params (make sure your api_host, user_email and api_token are populated) into the Workflow Parameters Values field;
+ - **Make sure to turn off the Coalescing Events to avoid grouping of the events on the basis of Source and Destination IP.**
+
+10. In the Test protocol parameters window, click Start Test.
+
+11. To fix any errors, click Configure Protocol Parameters. Configure the parameters and click Test Protocol Parameters.
+
+12. Click Finish
+
 # Jira Parameters Configuration
 Parameter	     | Name	| Default Value	| Type | Required (True/False) | Description
-api_host	     | Jira API Host | https://<your company>.atlassian.net | String	| True | Jira API Host URL.
+---                                 | --- | --- | --- |--- |---
+api_host	     | Jira API Host | https://\<your company>.atlassian.net | String	| True | Jira API Host URL.
 user_email	     | User Email Address | N/A |	String	| True | Email address of the Jira user.
 api_token	     | Jira API Token | N/A	| Authentication | True	| Jira API token for QRadar.
 max_results	     | Max Results | 100 | Integer | False | Maximum number of alerts to return per poll.
