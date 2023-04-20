@@ -13,8 +13,17 @@
         <QueryParameter name="version" value="1"/>
     </CallEndpoint>
 
+    <!-- Handle Errors -->
+    <If condition="/get_alerts/status_code != 200">
+        <If condition="/get_alerts/status_code = 400" >
+            <Abort reason="The token is not exist" />
+        </If>
+
+        <Abort reason="Reflectiz abort reason:  ${/get_alerts}" />
+    </If>
+
     <!-- Post Events if any-->
-    <If condition="count(/get_alerts/body) > 0">
+    <If condition="count(/get_alerts/body/messages) > 0">
         <PostEvents path="/get_alerts/body/messages" source="${/hostname}"/>
     </If>
 
