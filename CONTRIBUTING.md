@@ -34,7 +34,7 @@ In order to to share a workflow and share via the master branch branch successfu
     - **This information should be obfuscated before upload and have no PII / SPII within it**. We strictly want to see the proper operation of the workflow in the document. 
 
 ## To submit a workflow, please follow these steps:
-- Fork the QRadar Universal Cloud Rest API repository
+- Fork the [qradar-universal-cloud-rest-api](https://github.com/qmasters-ltd/qradar-universal-cloud-rest-api)
 - Create a new branch for your changes
 - Add your workflow file(s) to the appropriate folder(s)
 - Commit your changes and create a pull request
