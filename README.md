@@ -18,7 +18,6 @@ Universal Cloud REST API protocol is supported on QRadar 7.3.2 or later, and the
 - See: [Universal Cloud REST API protocol - IBM Documentation](https://www.ibm.com/docs/en/qsip/7.4?topic=configuration-universal-cloud-rest-api-protocol)
 
 
-
 ## Terminology
 #### Universal Cloud Rest Api terms:
 
@@ -26,8 +25,10 @@ Workflow: An XML document that outlines the event retrieval process. It defines 
 
 Workflow Parameter Values: The input parameters for a Workflow instance, stored in an XML file. These values consist of key/value pairs, and each key must match a parameter defined in the corresponding Workflow.
 
+
 ## Authors
 At QMasters, we believe in giving back to the community and our customers. As a team that has worked extensively with SIEMs since the beginning of our journey, we understand the importance of data for effective threat detection and response. We collaborate closely with our customers and vendors to provide them with the tools they need to maximize their security data. By developing and sharing tools like the QRadar Universal Cloud REST API, we aim to contribute to the broader security community and help organizations enhance their security posture. Visit us at: www.qmasters.co 
+
 
 ## Contributing
 We welcome contributions from the community to improve QRadar Universal Cloud REST API. 
@@ -36,6 +37,7 @@ If you have ideas for new features, enhancements to existing features, or bug fi
 Before submitting a pull request, make sure to review our contributing guidelines, which outline the process for submitting contributions and offer helpful tips on how to get started.
 
 Thank you for helping improve the QRadar Universal Cloud REST API and contributing to the security community!
+
 
 ## Useful Links
 
