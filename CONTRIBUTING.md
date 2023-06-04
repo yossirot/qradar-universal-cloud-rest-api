@@ -1,13 +1,16 @@
 # Contributing
-At QMasters, we believe in the power of community-driven innovation. As such, we welcome and encourage contributions from the community to help improve the QRadar Universal Cloud Rest API.
+At QMasters, we believe in the power of community-driven innovation. As such, we welcome and encourage contributions from the community to help improve the IBM Qradar Eco system our thread for Universal Cloud REST API.
 
-We have provided a handful of workflows to get you started, but we understand that there may be specific use cases that we have not yet covered. If you have developed a workflow that you think would benefit others, we would love to hear from you!
+We have created a selection of workflows and are sharing them with the community, we understand that there might be specific use cases that we have not addressed. 
+We welcome sharing, please use our platform and reach to share additional capabilities and workflows which will benefit others, we love feedback and  would love to hear from you!
 
 ## Code of Conduct
-We expect all contributors to adhere to our code of conduct. This includes being respectful of others and their opinions, refraining from discriminatory or abusive language, and working collaboratively to achieve our common goals.
+We expect all contributors to adhere to our code of conduct. This includes being respectful of others and their opinions, refraining from discriminatory or abusive language, and working collaboratively to achieve common goals.
 
 ## What to include:
-In order to have your workflow pulled into the master branch successfully, please ensure the following criteria is met before submitting:
+Reference: IBM's Contribution Process
+
+In order to to share a workflow and share via the master branch branch successfully, please ensure the following criteria is met before submitting:
 
 **Ensure your README file fits the following template:**
 - **Author Name:**
@@ -36,4 +39,4 @@ In order to have your workflow pulled into the master branch successfully, pleas
 - Add your workflow file(s) to the appropriate folder(s)
 - Commit your changes and create a pull request
 
-Once your pull request is reviewed and approved, we will post your workflow(s) here for others to consume. We may also feature particularly innovative or useful workflows on our website or in our marketing materials.
+Once your pull request is reviewed and approved, we will post your workflow(s) here for others to use. We may also feature particularly innovative or useful workflows on our website or in our marketing materials.
