@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
+
+    <!-- "api_host" - CrowdStrike API host -->
+	<Value name="api_host" value="https://<insert your crowd strike url>"/>
+    <!-- "api_id" - CrowdStrike API ID for QRadar (required) -->
+	<Value name="client_id" value="<insert your client id here>"/>
+    <!-- "api_key" - CrowdStrike API key for QRadar (required) -->
+	<Value name="client_secret" value="<insert your client secret here>"/>
+
+    <!-- "limit" - Max number of alerts to return per poll (Default=100). (optional) -->
+	<Value name="limit" value="100"/>
+
+</WorkflowParameterValues>

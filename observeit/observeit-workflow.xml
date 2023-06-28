@@ -1,9 +1,9 @@
-<Workflow name="Qmasters ObserveIT" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V1">
+<Workflow name="Qmasters ObserveIT" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
-		<Parameter name="hostname" label="Host Name" description="IP for the instance." required="true" default="myobserveit.com" />
+		<Parameter name="hostname" label="Host Name" description="URL or IP for the instance." required="true" default="myobserveit.com" />
 		<Parameter name="client_id" label="Organization Key"
             description="Can be received through the Developer Portal by selecting Credentials and pressing the Create App button."
-             required="true" />
+            required="true" />
 		<Parameter name="client_secret" label="API Secret"
             description="Can be received through the Developer Portal by selecting Credentials and pressing the Create App button."
             required="true" secret="true" />

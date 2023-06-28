@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V1">
-	<!-- Instance IP -->
+<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
+	<!-- Instance URL or IP -->
 	<Value name="hostname" value=""/>
 	<!-- Can be received through the Developer Portal by selecting Credentials and pressing the Create App button. -->
 	<Value name="client_id" value=""/>
