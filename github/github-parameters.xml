@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
+
+	<!-- "orgName" - GitHub Organization Name.-->
+	<Value name="orgName" value="<insert your GitHub Organization Name>"/>
+	<!-- "apiToken" - GitHub API token for QRadar (required) -->
+	<Value name="apiToken" value="<insert your token>"/>
+
+	<!-- "phrase" - A search phrase. (optional) -->
+	<Value name="phrase" value=""/>
+	<!-- "include" - The event types to include: web, git, all. (Default=all). (optional) -->
+	<Value name="include" value="all"/>
+
+	<!-- "perPage" - The number of results per page (max 100). (Default=30). (optional) -->
+	<Value name="perPage" value="30"/>
+	<!-- "timeZone" - select your time zone (Default=UTC). (optional) -->
+	<Value name="timeZone" value="UTC"/>
+</WorkflowParameterValues>
