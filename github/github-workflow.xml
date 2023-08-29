@@ -6,7 +6,7 @@
         <Parameter name="perPage" label="Per Page" required="false" default="30" />
         <Parameter name="include" label="Include" required="false" default="web" />
         <Parameter name="timeZone" label="Time Zone" required="false" default="UTC" />
-        <Parameter name="startTime" label="start Time" required="false" default="${time() - 3600000}" />
+        <Parameter name="startTime" label="Start Time" required="false" default="${time() - 3600000}" />
     </Parameters>
 
     <Actions>
