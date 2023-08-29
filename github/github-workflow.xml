@@ -6,6 +6,7 @@
         <Parameter name="perPage" label="Per Page" required="false" default="30" />
         <Parameter name="include" label="Include" required="false" default="web" />
         <Parameter name="timeZone" label="Time Zone" required="false" default="UTC" />
+        <Parameter name="startTime" label="start Time" required="false" default="${time() - 3600000}" />
     </Parameters>
 
     <Actions>
@@ -13,19 +14,29 @@
         <ClearStatus />
 
         <!-- Initialize the risingValue filter for the first run. -->
-        <Initialize path="/bookmark" value="${time() - 3600000}" />
+        <Initialize path="/bookmark" value="${/startTime}" />
+
+        <!-- Prepare the logs path -->
+        <Set path="/logs" value="[]"/>
 
         <!-- Prepare the start date filter, based on the current bookmark -->
         <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss[.SSS]" time="${/bookmark}" timeZone="${/timeZone}" savePath="/startTime" />
 
         <!-- Set the pharse wite the last log date -->
         <Set path="/phraseQuery" value="created:${/startTime}+${/phrase}"/>
+        
+        <!-- Set the firse page number -->
+        <Set path="/page_number" value="1"/>
+        <Set path="/page_number" value="${/page_number + 1}"/>
+
+        <Log type="INFO" message="Page number: ${/page_number}, Page size: ${/perPage}"/>
+        
 
         <!-- Get Logs -->				
         <CallEndpoint url="https://api.github.com/orgs/${/orgName}/audit-log" method="GET" savePath="/getLogs">
             <BearerAuthentication token="${/apiToken}" />
-            <QueryParameter name="phrase" value="created:>=2023-08-20T09:25:34.078" omitIfEmpty="true"/>
-            <QueryParameter name="per_page" value="100" omitIfEmpty="true"/>
+            <QueryParameter name="phrase" value="${/phraseQuery}" omitIfEmpty="true"/>
+            <QueryParameter name="per_page" value="${/perPage}" omitIfEmpty="true"/>
             <QueryParameter name="include" value="${/include}" omitIfEmpty="true"/>
             <QueryParameter name="order" value="desc"/>
         </CallEndpoint>
@@ -55,56 +66,52 @@
             <Log type="ERROR" message="GitHub API error: ${/getLogs/body/errorMessages}"/>
         </If>
 
-        <Add path="/logs" value="${/getLogs/body}" />
-        <Log type="info" message="count ${count(/getLogs/body)}"/>
+        <!-- Merge the log data from the API response into the "/logs" path. -->
+        <Merge targetPath="/logs" sourcePath="/getLogs/body" />
 
-        <RegexCapture value="${/getLogs/headers/link}" pattern='\b(.*?).;\srel=.next' savePath="/nextLink" />
-        <!-- Post Events, if any -->
+        <!-- Log the count of logs received in the current API response -->
+        <Log type="info" message="logs count ${count(/getLogs/body)}"/>
+        <!-- Log the total count of logs accumulated so far -->
+        <Log type="info" message="total logs count ${count(/logs)}"/>
 
-        <While condition="/nextLink != null">
-            <Log type="info" message="link: ${/getLogs/headers/link}"/>
+        <!-- Set the "/pattern" path to match the pattern of the next link. -->
+        <Set path="/pattern" value='^&lt;(.*)&gt;; rel="next"'/>
+
+        <!-- The regex pattern matching to capture the 'link' header value from /getLogs/headers. -->
+        <RegexCapture value="${/getLogs/headers/link}" pattern="${/pattern}" savePath="/nextLink" />
+
+        <!-- This loop runs as long as there is a next link available -->
+        <DoWhile condition="count(/nextLink) > 0">
         
+            <Log type="INFO" message="Page number: ${/page_number}, Page size: ${/perPage}"/>
+            <Set path="/page_number" value="${/page_number + 1}"/>
+
             <!-- Make another API call using the next link -->
             <CallEndpoint url="${/nextLink}" method="GET" savePath="/getLogs">
                 <BearerAuthentication token="${/apiToken}" />
             </CallEndpoint>
+            
+            <!-- Merge the log data from the API response into the "/logs" path. -->
+            <Merge targetPath="/logs" sourcePath="/getLogs/body" />
+            
+            <!-- Log the count of logs received in the current API response -->
+            <Log type="info" message="logs count ${count(/getLogs/body)}"/>
+            <!-- Log the total count of logs accumulated so far -->
+            <Log type="info" message="total logs count ${count(/logs)}"/>
 
-            <Add path="/logs" value="${/getLogs/body}" />
-            <Log type="info" message="count ${count(/getLogs/body)}"/>
-            <Log type="info" message="total count ${count(/logs/created_at)}"/>
+            <!-- Post Events, if any -->
             <!-- <PostEvents path="/logs" source="${/orgName}" /> -->
 
-            <!-- Extract the next link -->
-            <RegexCapture value="${/getLogs/headers/link}" pattern='\b(.*?).;\srel=.next' savePath="/newNextLink" />
-            <Set path="/nextLink" value="${/newNextLink}"/>
-        </While>
-
-        <Set path="/nextLink" value="null"/>
-
-        <DoWhile condition="/NextLink = null">
-            <Log type="info" message="new next link: ${/newNextLink}"/>
-            <Set path="/nextLink" value="${/newNextLink}"/>
-
-
-                <Log type="info" message="finish pagination"/>
-                
-
+            <!-- Extract the next link for the next iteration -->
+            <RegexCapture value="${/getLogs/headers/link}" pattern="${/pattern}" savePath="/nextLink" />
         </DoWhile>
-       
 
-
-        <!-- Post Events, if any -->
-        <If condition="count(/logs) > 0">
-        <Log type="info" message="total total count ${count(/logs/created_at)}"/>
-            <!-- <PostEvents path="/logs" source="${/orgName}" />   -->
-
-            <ForEach item="/log" items="/logs">
-                <Add path="/logsTime" value="${/log/created_at}" />
-            </ForEach>
-        </If>
         
+        <!-- Log the count of received logs -->
+        <Log type="info" message="${count(/logs)} logs are received"/>
+
         <!-- Update the bookmark -->
-        <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/records/created)}" savePath="/last_event_time" />
+        <Set path="/last_event_time" value="${max(/logs/created_at)}" />
         <Set path="/bookmark" value="${/last_event_time + 1}" />
 
     </Actions>	
