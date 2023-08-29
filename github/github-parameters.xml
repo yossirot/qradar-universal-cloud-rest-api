@@ -12,7 +12,10 @@
 	<Value name="include" value="all"/>
 
 	<!-- "perPage" - The number of results per page (max 100). (Default=30). (optional) -->
-	<Value name="perPage" value="30"/>
+	<Value name="perPage" value="100"/>
 	<!-- "timeZone" - select your time zone (Default=UTC). (optional) -->
 	<Value name="timeZone" value="UTC"/>
+	<!-- "startTime" - Specify the start time to retrieve logs from. Provide the time in epoch time with milliseconds (e.g., 1693309396000). The default is logs from the past 1 hour. (optional) -->
+	<Value name="startTime" value=""/>
+
 </WorkflowParameterValues>
