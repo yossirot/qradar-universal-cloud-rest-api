@@ -3,7 +3,7 @@
         <Parameter name="orgName" label="Organization Name" required="false" />
         <Parameter name="apiToken" label="API Token" required="true" secret="true" />
         <Parameter name="phrase" label="Search Phrase" required="false"/>
-        <Parameter name="perPage" label="Per Page" required="false" default="30" />
+        <Parameter name="perPage" label="Per Page" required="false" default="100" />
         <Parameter name="include" label="Include" required="false" default="web" />
         <Parameter name="timeZone" label="Time Zone" required="false" default="UTC" />
     </Parameters>
@@ -12,7 +12,7 @@
         <!-- Clear the log source status before a new workflow run starts -->
         <ClearStatus />
 
-        <!-- Initialize the risingValue filter for the first run. -->
+        <!-- Initialize the risingValue filter for the first run. the default set to 1 hour. -->
         <Initialize path="/bookmark" value="${time() - 3600000}" />
 
         <!-- Prepare the start date filter, based on the current bookmark -->
