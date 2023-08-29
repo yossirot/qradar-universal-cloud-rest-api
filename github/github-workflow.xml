@@ -3,7 +3,7 @@
         <Parameter name="orgName" label="Organization Name" required="false" />
         <Parameter name="apiToken" label="API Token" required="true" secret="true" />
         <Parameter name="phrase" label="Search Phrase" required="false"/>
-        <Parameter name="perPage" label="Per Page" required="false" default="100" />
+        <Parameter name="perPage" label="Per Page" required="false" default="30" />
         <Parameter name="include" label="Include" required="false" default="web" />
         <Parameter name="timeZone" label="Time Zone" required="false" default="UTC" />
     </Parameters>
@@ -12,7 +12,7 @@
         <!-- Clear the log source status before a new workflow run starts -->
         <ClearStatus />
 
-        <!-- Initialize the risingValue filter for the first run. the default set to 1 hour. -->
+        <!-- Initialize the risingValue filter for the first run. -->
         <Initialize path="/bookmark" value="${time() - 3600000}" />
 
         <!-- Prepare the start date filter, based on the current bookmark -->
@@ -22,50 +22,90 @@
         <Set path="/phraseQuery" value="created:${/startTime}+${/phrase}"/>
 
         <!-- Get Logs -->				
-        <CallEndpoint url="https://api.github.com/orgs/${/orgName}/audit-log" method="GET" savePath="/get_logs">
+        <CallEndpoint url="https://api.github.com/orgs/${/orgName}/audit-log" method="GET" savePath="/getLogs">
             <BearerAuthentication token="${/apiToken}" />
-            <QueryParameter name="phrase" value="${/phraseQuery}" omitIfEmpty="true"/>
-            <QueryParameter name="per_page" value="${/perPage}" omitIfEmpty="true"/>
+            <QueryParameter name="phrase" value="created:>=2023-08-20T09:25:34.078" omitIfEmpty="true"/>
+            <QueryParameter name="per_page" value="100" omitIfEmpty="true"/>
             <QueryParameter name="include" value="${/include}" omitIfEmpty="true"/>
             <QueryParameter name="order" value="desc"/>
         </CallEndpoint>
 
         <!-- Handle Errors -->
-        <If condition="/get_logs/status_code != 200">
-            <If condition="/get_logs/status_code = 403" >
+        <If condition="/getLogs/status_code != 200">
+            <If condition="/getLogs/status_code = 403" >
                 <Abort reason="This key has no satisfied permissions" />
-                <Log type="ERROR" message="GitHub API error: ${/get_logs/body/errorMessages}"/>
+                <Log type="ERROR" message="GitHub API error: ${/getLogs/body/errorMessages}"/>
             </If>
-            <If condition="/get_logs/status_code = 401" >
+            <If condition="/getLogs/status_code = 401" >
                 <Abort reason="Bad credentials" />
-                <Log type="ERROR" message="GitHub API error: ${/get_logs/body/errorMessages}"/>
+                <Log type="ERROR" message="GitHub API error: ${/getLogs/body/errorMessages}"/>
             </If>
 
-            <If condition="/get_logs/status_code = 400" >
-                <Abort reason="Bad input parameter. ${/get_logs/body/errorMessages}" />
-                <Log type="ERROR" message="GitHub API error: ${/get_logs/body/errorMessages}"/>
+            <If condition="/getLogs/status_code = 400" >
+                <Abort reason="Bad input parameter. ${/getLogs/body/errorMessages}" />
+                <Log type="ERROR" message="GitHub API error: ${/getLogs/body/errorMessages}"/>
             </If>
 
-            <If condition="/get_logs/status_code >= 500" >
+            <If condition="/getLogs/status_code >= 500" >
                 <Abort reason="GitHub API is not available" />
-                <Log type="ERROR" message="GitHub API error: ${/get_logs/body/errorMessages}"/>
+                <Log type="ERROR" message="GitHub API error: ${/getLogs/body/errorMessages}"/>
             </If>
 
-            <Abort reason="GitHub abort reason:  ${/get_logs}" />
-            <Log type="ERROR" message="GitHub API error: ${/get_logs/body/errorMessages}"/>
+            <Abort reason="GitHub abort reason:  ${/getLogs}" />
+            <Log type="ERROR" message="GitHub API error: ${/getLogs/body/errorMessages}"/>
         </If>
 
+        <Add path="/logs" value="${/getLogs/body}" />
+        <Log type="info" message="count ${count(/getLogs/body)}"/>
+
+        <RegexCapture value="${/getLogs/headers/link}" pattern='\b(.*?).;\srel=.next' savePath="/nextLink" />
         <!-- Post Events, if any -->
-            <If condition="count(/get_logs/body) > 0">
-                <PostEvents path="/get_logs/body" source="${/orgName}" />
 
-                <ForEach item="/log" items="/get_logs/body">
-                    <Add path="/logs_time" value="${/log/created_at}" />
-                </ForEach>
+        <While condition="/nextLink != null">
+            <Log type="info" message="link: ${/getLogs/headers/link}"/>
+        
+            <!-- Make another API call using the next link -->
+            <CallEndpoint url="${/nextLink}" method="GET" savePath="/getLogs">
+                <BearerAuthentication token="${/apiToken}" />
+            </CallEndpoint>
 
-                <!-- Update the bookmark -->
-                <Set path="/bookmark" value="${max(/logs_time) + 1}" />
-            </If>
+            <Add path="/logs" value="${/getLogs/body}" />
+            <Log type="info" message="count ${count(/getLogs/body)}"/>
+            <Log type="info" message="total count ${count(/logs/created_at)}"/>
+            <!-- <PostEvents path="/logs" source="${/orgName}" /> -->
+
+            <!-- Extract the next link -->
+            <RegexCapture value="${/getLogs/headers/link}" pattern='\b(.*?).;\srel=.next' savePath="/newNextLink" />
+            <Set path="/nextLink" value="${/newNextLink}"/>
+        </While>
+
+        <Set path="/nextLink" value="null"/>
+
+        <DoWhile condition="/NextLink = null">
+            <Log type="info" message="new next link: ${/newNextLink}"/>
+            <Set path="/nextLink" value="${/newNextLink}"/>
+
+
+                <Log type="info" message="finish pagination"/>
+                
+
+        </DoWhile>
+       
+
+
+        <!-- Post Events, if any -->
+        <If condition="count(/logs) > 0">
+        <Log type="info" message="total total count ${count(/logs/created_at)}"/>
+            <!-- <PostEvents path="/logs" source="${/orgName}" />   -->
+
+            <ForEach item="/log" items="/logs">
+                <Add path="/logsTime" value="${/log/created_at}" />
+            </ForEach>
+        </If>
+        
+        <!-- Update the bookmark -->
+        <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/get_alerts/body/records/created)}" savePath="/last_event_time" />
+        <Set path="/bookmark" value="${/last_event_time + 1}" />
 
     </Actions>	
     <Tests>
