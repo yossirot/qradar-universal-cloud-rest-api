@@ -55,9 +55,10 @@ The parameters XML document specifies the user settings for this log source, inc
 # GitHub Parameters Configuration
 | Parameter   | Name                  | Default Value          | Type           | Required | Description                                       |
 | ----------- | --------------------- | ---------------------- | -------------- | -------- | ------------------------------------------------- |
-| orgName     | GitHub Organization Name  |      | String         | Yes      | GitHub Organization Name.                        |
-| apiToken    | GitHub API Token      |      | Authentication | Yes      | GitHub API token for QRadar.                     |
-| phrase      | Search Phrase         | | String         | No       | A search phrase.                                 |
-| include     | Event Types to Include| all  | String         | No       | The event types to include: web, git, all.       |
-| perPage     | Results Per Page      | 30                     | Integer        | No       | Number of results per page (max 100).           |
-| timeZone    | Time Zone             | UTC                    | String         | No       | Time zone selection.                             |
+| orgName     | GitHub Organization Name  |      | String         | Yes            | GitHub Organization Name.                        |
+| apiToken    | GitHub API Token      |          | Authentication | Yes            | GitHub API token for QRadar.                     |
+| phrase      | Search Phrase         |          | String         | No             | A search phrase.                                 |
+| include     | Event Types to Include| all      | String         | No             | The event types to include: web, git, all.       |
+| perPage     | Results Per Page      | 30       | Integer        | No             | Number of results per page (max 100).           |
+| timeZone    | Time Zone             | UTC      | String         | No             | Time zone selection.                             |
+| startTime   | Start Time            |          | Integer        | No             | Specify the start time to retrieve logs from. Provide the time in epoch time with milliseconds (e.g., 1693309396000). The default is logs from the past 1 hour.                             |
