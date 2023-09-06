@@ -20,7 +20,6 @@
             <Set path="/bookmark" value="${/startTime}"/>
         </If>
 
-
         <!-- Prepare the start date filter, based on the current bookmark -->
         <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss[.SSS]" time="${/bookmark}" timeZone="${/timeZone}" savePath="/startTime" />
         <Log type="info" message="format ${/bookmark}"/>
@@ -43,6 +42,11 @@
         <If condition="/getLogs/status_code != 200">
             <Log type="ERROR" message="GitHub API error: ${/getLogs}"/>
             <Abort reason="GitHub abort reason: ${/getLogs/body/message}" />
+        </If>
+
+        <!-- Post Events, if any -->
+        <If condition="count(/getLogs/body) > 0">
+            <PostEvents path="/getLogs/body" source="${/orgName}" />
         </If>
 
         <!-- Prepare the logs path -->
@@ -84,7 +88,9 @@
             </If>
 
             <!-- Post Events, if any -->
-            <PostEvents path="/getLogs/body" source="${/orgName}" />
+            <If condition="count(/getLogs/body) > 0">
+                <PostEvents path="/getLogs/body" source="${/orgName}" />
+            </If>
 
             <!-- Extract the next link for the next iteration -->
             <RegexCapture value="${/getLogs/headers/link}" pattern="${/pattern}" savePath="/nextLink" />
