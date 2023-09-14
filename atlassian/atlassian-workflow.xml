@@ -1,0 +1,113 @@
+<Workflow name="Qmasters Atlassian workflow for QRadar" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
+    <Parameters>
+        <Parameter name="orgID" label="Organization ID" required="true" />
+        <Parameter name="apiToken" label="API Token" required="true" secret="true" />
+        <Parameter name="query" label="Query" required="false" default="" />
+        <Parameter name="timeZone" label="Time Zone" required="false" default="UTC" />
+        <Parameter name="startTime" label="Start Time" required="false" default="" />
+    </Parameters>
+
+    <Actions>
+        <!-- Clear the log source status before a new workflow run starts -->
+        <ClearStatus />
+
+        <!-- Initialize the risingValue filter for the first run. -->
+        <Initialize path="/bookmark" value="${time() - 3600000}" />
+
+        <If condition="/startTime != null" >
+            <Set path="/bookmark" value="${/startTime}"/>
+        </If>
+
+        <!-- Prepare the start date filter, based on the current bookmark -->
+        <!-- <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss[.SSS]" time="${/bookmark}" timeZone="${/timeZone}" savePath="/startTime" /> -->
+        <Log type="info" message="format ${/bookmark}"/>
+
+        <!-- Set the firse page number -->
+        <Set path="/page_number" value="1"/>
+        <Set path="/page_number" value="${/page_number + 1}"/>
+        <Log type="INFO" message="Page number: ${/page_number}, Page size: ${/perPage}"/>
+
+        <!-- Get events -->
+        <CallEndpoint url="https://api.atlassian.com/admin/v1/orgs/${/orgID}/events" method="GET" savePath="/getEvents">
+            <BearerAuthentication token="${/apiToken}" />
+            <QueryParameter name="from" value="${/startTime}" omitIfEmpty="true"/>
+            <QueryParameter name="cursor" value="${/cursor}" omitIfEmpty="true"/>
+            <QueryParameter name="query" value="${/query}" omitIfEmpty="true"/>
+            <QueryParameter name="order" value="desc"/>
+        </CallEndpoint>
+
+        <!-- Handle Errors -->
+        <If condition="/getEvents/status_code != 200">
+            <Log type="ERROR" message="Atlassian API error: ${/getEvents/body}"/>
+            <Abort reason="Atlassian abort reason: ${/getEvents/body}" />
+        </If>
+
+        <!-- Post Events, if any -->
+        <If condition="count(/getEvents/body/data) > 0">
+            <PostEvents path="/getEvents/body/data" source="${/orgID}" />
+        </If>
+
+        <!-- Prepare the events path -->
+        <Set path="/events" value="[]"/>
+        <!-- Merge the log data from the API response into the "/events" path. -->
+        <Merge targetPath="/events" sourcePath="/getEvents/body/data" />
+
+        <Log type="INFO" message="Number of events in this fetched: ${count(/getEvents/body/data)}"/>
+        <Log type="INFO" message="Total number of fetched events: ${count(/events)}"/>
+
+        <!-- Pattern for URL within headers.link of the requst -->
+        <!-- <Set path="/pattern" value='^&lt;(.*)&gt;; rel="next"'/> -->
+        <!-- The regex pattern matching to capture the 'link' header value from /getEvents/headers. -->
+        <!-- <RegexCapture value="${/getEvents/headers/link}" pattern="${/pattern}" savePath="/nextLink" /> -->
+        <Set path="/nextLink" value="${/getEvents/headers/links/next}" />
+
+        <!-- This loop runs as long as there is a next link available -->
+        <DoWhile condition="count(/nextLink) > 0">
+            <Log type="INFO" message="Received Page Details: Page number: ${/page_number}, Page size: ${/perPage}"/>
+            <Set path="/page_number" value="${/page_number + 1}"/>
+
+            <If condition="count(/nextLink) > 0">
+                <!-- Make another API call using the next link -->
+                <CallEndpoint url="${/nextLink}" method="GET" savePath="/getEvents">
+                    <BearerAuthentication token="${/apiToken}" />
+                </CallEndpoint>
+
+                <!-- Handle Errors -->
+                <If condition="/getEvents/status_code != 200">
+                    <Log type="ERROR" message="Atlassian API error: ${/getEvents/body}"/>
+                    <Abort reason="Atlassian abort reason: ${/getEvents/body}" />
+                </If>
+
+                <!-- Merge the log data from the API response into the "/events" path. -->
+                <Merge targetPath="/events" sourcePath="/getEvents/body/data" />
+
+                <Log type="INFO" message="Number of events in this fetched: ${count(/getEvents/body/data)}"/>
+                <Log type="INFO" message="Total number of fetched events: ${count(/events)}"/>
+
+            </If>
+
+            <!-- Post Events, if any -->
+            <If condition="count(/getEvents/body/data) > 0">
+                <PostEvents path="/getEvents/body/data" source="${/orgID}" />
+            </If>
+
+            <!-- Extract the next link for the next iteration -->
+            <Set path="/nextLink" value="${/getEvents/headers/links/next}" />
+        </DoWhile>
+
+        <If condition="count(/last_event_time) > 0">
+            <!-- Update the bookmark -->
+            <!-- <Set path="/last_event_time" value="${max(/events/created_at)}" /> -->
+            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ" timeZone="${/time_zone}" date="${max(/events/created_at)}" savePath="/last_event_time" />
+            <Set path="/bookmark" value="${/last_event_time + 1}" />
+        </If>
+
+    </Actions>
+
+    <Tests>
+        <DNSResolutionTest host="api.Atlassian.com" />
+        <TCPConnectionTest host="api.Atlassian.com" />
+        <SSLHandshakeTest host="api.Atlassian.com" />
+        <HTTPConnectionThroughProxyTest url="api.Atlassian.com" expectedResponseStatus="404" />
+    </Tests>
+</Workflow>
