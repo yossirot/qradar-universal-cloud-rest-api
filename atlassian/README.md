@@ -1,25 +1,44 @@
 # Atlassian API connector for QRadar
 
-# How to Generate Atlassian API Token
-1. **Log in**: Visit [Atlassian](https://Atlassian.com/) and log in to your account as an organization owner.
+## How to Generate Atlassian API Key
 
-2. **Access Settings**: Click on your profile picture > "Settings".
+### Prerequisites
 
-3. **Developer Settings**: Click "Developer settings" in the left sidebar.
+Before you begin, make sure you have:
 
-4. **Generate Token**: Under "Personal access tokens," click "Generate token."
+- An Atlassian account with organization owner privileges.
 
-5. **Configure Token**:
-   - Enter a name for your token in the "Note" field.
-   - Scroll down and find "read:audit_log" in the scopes list, then check the checkbox.
 
-6. **Generate**: Click "Generate token" at the bottom of the page.
+### Follow these steps to create an API key:
 
-7. **Copy Token**:
-   - Copy the generated token (only shown once).
-   - Click "Copy" to copy the token to your clipboard.
+1. **Log in**: Visit [Atlassian](https://admin.atlassian.com/) and log in to your Atlassian account as an organization owner.
 
-# QRadar Log Source Configuration
+2. **Access Settings**: Once logged in, select your organization if you have more than one.
+
+3. **API Keys**: Click on "Settings" in the top navigation menu.
+
+4. **Create API Key**: Under "API keys," select "Create API key" in the top right corner.
+
+5. **Name Your Key**:
+   - Enter a name for your API key that you'll remember to identify it.
+
+6. **Set Expiration Date (Optional)**:
+   - By default, the key expires one week from today. If you'd like to change the expiration date, pick a new date under "Expires on." Note that you cannot select a date longer than a year from the date of creation.
+
+7. **Create**: Click the "Create" button to save the API key.
+
+8. **Copy Values**:
+   - After creating the API key, you'll see the values for your Organization ID and API key displayed on the screen.
+   - Copy both the Organization ID and API key. You'll need these values to use the API key.
+
+**Note**: It's crucial to store these values in a safe place as they won't be displayed to you again.
+
+**Important**: Keep your API key and Organization ID secure, as they provide access to your Atlassian resources and should not be shared or exposed in public repositories.
+
+For more detailed information on tracking organization activities from the audit log using your Atlassian API key, please refer to the official [Atlassian Documentation](https://support.atlassian.com/security-and-access-policies/docs/track-organization-activities-from-the-audit-log/#Auditlogging-export).
+.
+
+## QRadar Log Source Configuration
 A workflow XML document defines the behavior of the Universal Cloud REST API protocol. To ingest data from an endpoint through the Universal REST API protocol, you can create a log source on the QRadar® Console using the Log Source Management app. In the Workflow field of the log source, you can specify how the endpoint can communicate with QRadar using the Universal REST API protocol.
 
 The parameters XML document specifies the user settings for this log source, including API authentication and relevant configurations.
@@ -41,9 +60,9 @@ The parameters XML document specifies the user settings for this log source, inc
 8. On the Configure the Log Source parameters page, configure the log source name and click Configure Protocol Parameters.
 
 9. On the Configure the Protocol Parameters page, configure the protocol-specific parameters:
- - Insert a log source identifier (Atlassian API);
- - Copy the Workflow XML you downloaded from Atlassian and paste it into the Workflow field;
- - Copy the Workflow Params (make sure your OrgName, and apiToken are populated) into the Workflow Parameters Values field;
+ - Insert **your Atlassian org ID** as log source identifier;
+ - Copy the Workflow XML you downloaded from Qmasters GitHub and paste it into the Workflow field;
+ - Copy the Workflow Params (make sure your OrgID, and apiToken are populated) into the Workflow Parameters Values field;
  - **Make sure to turn off the Coalescing Events to avoid grouping of the events on the basis of Source and Destination IP.**
 
 10. In the Test protocol parameters window, click Start Test.
@@ -52,13 +71,11 @@ The parameters XML document specifies the user settings for this log source, inc
 
 12. Click Finish
 
-# Atlassian Parameters Configuration
+## Atlassian Parameters Configuration
 | Parameter   | Name                  | Default Value          | Type           | Required | Description                                       |
 | ----------- | --------------------- | ---------------------- | -------------- | -------- | ------------------------------------------------- |
-| orgName     | Atlassian Organization Name  |      | String         | Yes            | Atlassian Organization Name.                        |
+| orgID       | Atlassian Organization ID  |      | String         | Yes            | Atlassian Organization ID.                        |
 | apiToken    | Atlassian API Token      |          | Authentication | Yes            | Atlassian API token for QRadar.                     |
-| phrase      | Search Phrase         |          | String         | No             | A search phrase.                                 |
-| include     | Event Types to Include| all      | String         | No             | The event types to include: web, git, all.       |
-| perPage     | Results Per Page      | 30       | Integer        | No             | Number of results per page (max 100).           |
+| query      | Query         |          | String         | No             | Single query term for searching events.                                 |
 | timeZone    | Time Zone             | UTC      | String         | No             | Time zone selection.                             |
 | startTime   | Start Time            |          | Integer        | No             | Specify the start time to retrieve logs from. Provide the time in epoch time with milliseconds (e.g., 1693309396000). The default is logs from the past 1 hour.                             |
