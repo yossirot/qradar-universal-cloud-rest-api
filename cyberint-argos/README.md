@@ -55,6 +55,5 @@ severity                            | Severity | "very_high" "high", "medium", "
 status                              | Status | "open", "acknowledged", "closed" | Array of String | False | You can specify the alert status to pull.
 | timeZone    | Time Zone             | UTC      | String         | No             | Time zone selection.                             |
 
-
 # Cybeirnt API Documentation:
 https://qmasters-integration.cyberint.io/
