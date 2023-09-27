@@ -32,7 +32,7 @@ The parameters XML document specifies the user settings for this log source, inc
 
 7. On the Select Protocol Type page, select Universal Cloud REST API, and go to Step 3.
 
-8. On the Configure the Log Source parameters page, configure the log source name and click Configure Protocol Parameters. 
+8. On the Configure the Log Source parameters page, configure the log source name and click Configure Protocol Parameters.
 
 9. On the Configure the Protocol Parameters page, configure the protocol-specific parameters:
  - Insert a log source identifier (Cyberitn_API);
@@ -49,11 +49,12 @@ The parameters XML document specifies the user settings for this log source, inc
 # CyberInt Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
 ---                                 | --- | --- | --- |--- |---
-hostname                            | Host Name | https://\<MyCompuny>.cyberint.io | String | True | URL of your Cyberint instance.
-api_key                             | API Key | False | Authentication | True | Cyberint API token for QRadar.
+hostName                            | Host Name | https://\<MyCompuny>.cyberint.io | String | True | URL of your Cyberint instance.
+apiKey                             | API Key | False | Authentication | True | Cyberint API token for QRadar.
 severity                            | Severity | "very_high" "high", "medium", "low" | Array of String | False | You can specify the alert severity to pull.
 status                              | Status | "open", "acknowledged", "closed" | Array of String | False | You can specify the alert status to pull.
+| timeZone    | Time Zone             | UTC      | String         | No             | Time zone selection.                             |
+
 
 # Cybeirnt API Documentation:
 https://qmasters-integration.cyberint.io/
-
