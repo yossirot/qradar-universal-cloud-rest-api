@@ -80,6 +80,7 @@
 
                 <!-- Update the bookmark -->
                 <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss" timeZone="${/timeZone}" date="${max(/getAlerts/body/alerts/modification_date)}" savePath="/lastAlertsTime" />
+                <Set path="/lastAlert" value="${max(/getAlerts/body/alerts/modification_date)}" />
                 <Set path="/bookmark" value="${/lastAlertsTime + 1000}" />
             </If>
             <Else>
