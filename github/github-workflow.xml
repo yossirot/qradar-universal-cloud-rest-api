@@ -1,6 +1,7 @@
 <Workflow name="Qmasters GitHub workflow for QRadar" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
         <Parameter name="orgName" label="Organization Name" required="false" />
+        <Parameter name="enterpriseName" label="Enterprise Name" required="false" />
         <Parameter name="apiToken" label="API Token" required="true" secret="true" />
         <Parameter name="phrase" label="Search Phrase" required="false"/>
         <Parameter name="perPage" label="Per Page" required="false" default="30" />
@@ -27,8 +28,18 @@
         <!-- Set the firse page number -->
         <Set path="/pageNumber" value="1"/>
 
+        <!-- Prepere the api url and the log source identifier-->
+        <If condition="count(/orgName) > 0" >
+            <Set path="/identifier" value="${/orgName}"/>
+            <Set path="/apiPath" value="orgs/${/orgName}"/>
+        </If>
+        <Else>
+            <Set path="/identifier" value="${/enterpriseName}"/>
+            <Set path="/apiPath" value="enterprises/${/enterpriseName}"/>
+        </Else>
+
         <!-- Get Logs -->
-        <CallEndpoint url="https://api.github.com/orgs/${/orgName}/audit-log" method="GET" savePath="/getLogs">
+        <CallEndpoint url="https://api.github.com/${/apiPath}/audit-log" method="GET" savePath="/getLogs">
             <BearerAuthentication token="${/apiToken}" />
             <QueryParameter name="phrase" value="created:>=${/startTime}+${/phrase}" omitIfEmpty="true"/>
             <QueryParameter name="per_page" value="${/perPage}" omitIfEmpty="true"/>
@@ -44,7 +55,7 @@
 
         <!-- Post Events, if any -->
         <If condition="count(/getLogs/body) > 0">
-            <PostEvents path="/getLogs/body" source="${/orgName}" />
+            <PostEvents path="/getLogs/body" source="${/identifier}" />
         </If>
 
         <!-- Prepare the lastEventsTime path -->
@@ -52,7 +63,7 @@
         <Set path="/eventsIDs" value="[]"/>
 
         <!-- Merge the log data from the API response into the "/lastEventsTime" path. -->
-        <Merge targetPath="/lastEventsTime" sourcePath="/getLogs/body/created_at" />
+        <Merge targetPath="/lastEventsTime" sourcePath="/getLogs/body/'@timestamp'" />
         <Merge targetPath="/eventsIDs" sourcePath="/getLogs/body/_document_id" />
 
         <Log type="INFO" message="Page number: ${/pageNumber}, Number of events in this fetched: ${count(/getLogs/body)}"/>
@@ -78,7 +89,7 @@
 
             <!-- Post Events, if any -->
             <If condition="count(/getLogs/body) > 0">
-                <PostEvents path="/getLogs/body" source="${/orgName}" />
+                <PostEvents path="/getLogs/body" source="${/identifier}" />
             </If>
 
             <!-- Set the next page number -->
@@ -86,7 +97,7 @@
             <Log type="INFO" message="Page number: ${/pageNumber}, Number of events in this fetched: ${count(/getLogs/body)}"/>
 
             <!-- Merge the log times from the API response into the "/lastEventsTime" path. -->
-            <Merge targetPath="/lastEventsTime" sourcePath="/getLogs/body/created_at" />
+            <Merge targetPath="/lastEventsTime" sourcePath="/getLogs/body/'@timestamp'" />
             <Merge targetPath="/eventsIDs" sourcePath="/getLogs/body/_document_id" />
 
             <!-- Extract the next link for the next iteration -->
@@ -104,7 +115,7 @@
         </If>
         <Else>
             <Set path="/heartBeatLog" value="The connection to the GitHub API was successfully established; however, there are no new audit logs available for retrieval at this moment. The last log received was at: ${/lastEvent}. "/>
-            <PostEvent path="/heartBeatLog" source="${/orgName}" />
+            <PostEvent path="/heartBeatLog" source="${/identifier}" />
         </Else>
 
 

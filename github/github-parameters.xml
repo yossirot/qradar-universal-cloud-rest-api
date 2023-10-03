@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
 
-	<!-- "orgName" - GitHub Organization Name.-->
-	<Value name="orgName" value="<insert your GitHub Organization Name>"/>
+	<!-- "orgName" - GitHub Organization Name. in case the enterpriseName is configured leave the value empty. -->
+	<Value name="orgName" value=""/>
+	<!-- "enterpriseName" - GitHub Enterprise Name. in case the orgName is configured leave the value empty.-->
+	<Value name="enterpriseName" value=""/>
 	<!-- "apiToken" - GitHub API token for QRadar (required) -->
 	<Value name="apiToken" value="<insert your token>"/>
 
