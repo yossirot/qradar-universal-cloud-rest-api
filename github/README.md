@@ -38,10 +38,10 @@ The parameters XML document specifies the user settings for this log source, inc
 
 7. On the Select Protocol Type page, select Universal Cloud REST API.
 
-8. On the Configure the Log Source parameters page, configure the log source name and click Configure Protocol Parameters. 
+8. On the Configure the Log Source parameters page, configure the log source name and click Configure Protocol Parameters.
 
 9. On the Configure the Protocol Parameters page, configure the protocol-specific parameters:
- - Insert a log source identifier (GitHub API);
+ - Insert a log source identifier ,your GitHub "*orgName*" or your GitHub "*enerpriseName*";
  - Copy the Workflow XML you downloaded from GitHub and paste it into the Workflow field;
  - Copy the Workflow Params (make sure your OrgName, and apiToken are populated) into the Workflow Parameters Values field;
  - **Make sure to turn off the Coalescing Events to avoid grouping of the events on the basis of Source and Destination IP.**
@@ -56,6 +56,7 @@ The parameters XML document specifies the user settings for this log source, inc
 | Parameter   | Name                  | Default Value          | Type           | Required | Description                                       |
 | ----------- | --------------------- | ---------------------- | -------------- | -------- | ------------------------------------------------- |
 | orgName     | GitHub Organization Name  |      | String         | Yes            | GitHub Organization Name.                        |
+| enterpriseName     | GitHub Enterprise Name  |      | String         | Yes            | GitHub Enterprise Name.                        |
 | apiToken    | GitHub API Token      |          | Authentication | Yes            | GitHub API token for QRadar.                     |
 | phrase      | Search Phrase         |          | String         | No             | A search phrase.                                 |
 | include     | Event Types to Include| all      | String         | No             | The event types to include: web, git, all.       |
