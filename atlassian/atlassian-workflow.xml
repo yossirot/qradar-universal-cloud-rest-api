@@ -38,13 +38,12 @@
         </If>
 
         <!-- Post Events, if any -->
-        <!-- <If condition="count(/getEvents/body/data) > 0">
+        <If condition="count(/getEvents/body/data) > 0">
             <PostEvents path="/getEvents/body/data" source="${/orgID}" />
-        </If> -->
+        </If>
 
         <!-- Prepare the lastEventsTime path -->
         <Set path="/lastEventsTime" value="[]"/>
-        <Set path="/numberOfEvents" value="[]"/>
 
         <!-- Merge the log data from the API response into the "/lastEventsTime" path. -->
         <Merge targetPath="/lastEventsTime" sourcePath="/getEvents/body/data/attributes/time" />
@@ -72,9 +71,9 @@
             </If>
 
             <!-- Post Events, if any -->
-            <!-- <If condition="count(/getEvents/body/data) > 0">
+            <If condition="count(/getEvents/body/data) > 0">
                 <PostEvents path="/getEvents/body/data" source="${/orgID}" />
-            </If> -->
+            </If>
 
             <!-- Set the number of events -->
             <Set path="/currentFetchEvents" value="${count(/getEvents/body/data/id)}"/>
