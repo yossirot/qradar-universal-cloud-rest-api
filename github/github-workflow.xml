@@ -60,13 +60,15 @@
 
         <!-- Prepare the lastEventsTime path -->
         <Set path="/lastEventsTime" value="[]"/>
-        <Set path="/numberOfEvents" value="[]"/>
 
         <!-- Merge the log data from the API response into the "/lastEventsTime" path. -->
         <Merge targetPath="/lastEventsTime" sourcePath="/getLogs/body/'@timestamp'" />
+
+        <!-- Set the number of events -->
+        <Set path="/currentFetchEvents" value="${count(/getLogs/body/_document_id)}"/>
         <Set path="/numberOfEvents" value="${count(/getLogs/body/_document_id)}"/>
 
-        <Log type="INFO" message="Page number: ${/pageNumber}, Number of events in this fetched: ${/numberOfEvents}"/>
+        <Log type="INFO" message="Page number: ${/pageNumber}, Number of events in this fetched: ${/currentFetchEvents}"/>
 
         <!-- Pattern for URL within headers.link of the requst -->
         <Set path="/pattern" value='^&lt;(.*)&gt;; rel="next"'/>
@@ -98,7 +100,7 @@
 
             <!-- Set the next page number -->
             <Set path="/pageNumber" value="${/pageNumber + 1}"/>
-            <Log type="INFO" message="Page number: ${/pageNumber}, Number of events in this fetched: ${count(/getLogs/body)}"/>
+            <Log type="INFO" message="Page number: ${/pageNumber}, Number of events in this fetched: ${/currentFetchEvents}"/>
 
             <!-- Merge the log times from the API response into the "/lastEventsTime" path. -->
             <Merge targetPath="/lastEventsTime" sourcePath="/getLogs/body/'@timestamp'" />
