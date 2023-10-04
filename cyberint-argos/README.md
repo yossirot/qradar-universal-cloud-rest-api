@@ -7,11 +7,11 @@
 
 2. At the top right of the screen press the profile button and then enter the "USER SETTINGS".
 
-3. In the user settings press at three doted in the top right.
+3. In the user settings press at three dots in the top right.
 
 4. Press the "Generate API Token" button.
 
-5. Here you can see your api token.
+5. Here you can see your API token.
 
 # QRadar Log Source Configuration
 A workflow XML document defines the behavior of the Universal Cloud REST API protocol. To ingest data from an endpoint through the Universal REST API protocol, you can create a log source on the QRadar® Console using the Log Source Management app. In the Workflow field of the log source, you can specify how the endpoint can communicate with QRadar using the Universal REST API protocol.
@@ -24,7 +24,7 @@ The parameters XML document specifies the user settings for this log source, inc
 
 3. Then click Create New and insert the name (_Cybeirnt API_).
 
-4. To create the log source, go to admin panel and click the QRadar Log Source Management app icon.
+4. To create the log source, go to the admin panel and click the QRadar Log Source Management app icon.
 
 5. Click New Log Source > Single Log Source.
 
@@ -49,10 +49,10 @@ The parameters XML document specifies the user settings for this log source, inc
 # CyberInt Parameters Configuration
 Parameter                           | Name | Default Value | Type | Required (True/False) | Description
 ---                                 | --- | --- | --- |--- |---
-hostName                            | Host Name | https://\<MyCompuny>.cyberint.io | String | True | URL of your Cyberint instance.
+hostName                            | Host Name |  | String | True | URL of your Cyberint instance. for example: https://**test**.cyberint.io
 apiKey                             | API Key | False | Authentication | True | Cyberint API token for QRadar.
 severity                            | Severity | "very_high" "high", "medium", "low" | Array of String | False | You can specify the alert severity to pull.
-status                              | Status | "open", "acknowledged", "closed" | Array of String | False | You can specify the alert status to pull.
+status                              | Status | "open", "acknowledged" | Array of String | False | You can specify the alert status to pull.
 | timeZone    | Time Zone             | UTC      | String         | No             | Time zone selection.                             |
 
 # Cybeirnt API Documentation:
