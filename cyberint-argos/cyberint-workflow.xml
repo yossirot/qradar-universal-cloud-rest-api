@@ -1,6 +1,6 @@
 <Workflow name="Qmasters CyberInt workflow for QRadar" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
-        <Parameter name="hostName" label="Host Name" required="true" />
+        <Parameter name="domainName" label="Domain Name" required="true" />
         <Parameter name="apiKey" label="API Key" required="true" secret="true" />
         <Parameter name="severity" label="Severity" required="false" />
         <Parameter name="status" label="Status" required="false" default="false" />
@@ -22,8 +22,9 @@
         <FormatDate pattern="yyyy-MM-dd'T'HH:mm:ss" timeZone="${/timeZone}" savePath="/endTime" />
 
         <!-- Get Alerts -->
-        <CallEndpoint url="${/hostName}/alert/api/v1/alerts" method="POST" savePath="/getAlerts" >
+        <CallEndpoint url="https://${/domainName}.cyberint.io/alert/api/v1/alerts" method="POST" savePath="/getAlerts" >
             <RequestHeader name="Cookie" value="access_token=${/apiKey}; Path=/;" />
+            <RequestHeader name="Integration-Source" value="QRADAR;${/domainName}" />
             <RequestBody type="application/json" encoding="UTF-8">
                 {
                     "page": 1,
@@ -76,7 +77,7 @@
 
         <!-- Post Events, if any -->
             <If condition="count(/getAlerts/body/alerts) > 0">
-                <PostEvents path="/getAlerts/body/alerts" source="${/hostName}" />
+                <PostEvents path="/getAlerts/body/alerts" source="${/domainName}" />
 
                 <!-- Update the bookmark -->
                 <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss" timeZone="${/timeZone}" date="${max(/getAlerts/body/alerts/modification_date)}" savePath="/lastAlertsTime" />
@@ -85,13 +86,13 @@
             </If>
             <Else>
                 <Set path="/heartBeatLog" value="The connection to the Cyberint API was successfully established; however, there are no new alerts available for retrieval at this moment. The last alert received was at: ${/lastAlert} (UTC)." />
-                <PostEvent path="/heartBeatLog" source="${/hostName}" />
+                <PostEvent path="/heartBeatLog" source="${/domainName}" />
             </Else>
     </Actions>
     <Tests>
-        <DNSResolutionTest host="${/hostName}" />
-        <TCPConnectionTest host="${/hostName}" />
-        <SSLHandshakeTest host="${/hostName}" />
-        <HTTPConnectionThroughProxyTest url="${/hostName}" expectedResponseStatus="404" />
+        <DNSResolutionTest host="${/domainName}.cyberint.io" />
+        <TCPConnectionTest host="https://${/domainName}.cyberint.io" />
+        <SSLHandshakeTest host="https://${/domainName}.cyberint.io" />
+        <HTTPConnectionThroughProxyTest url="${/domainName}" expectedResponseStatus="404" />
     </Tests>
 </Workflow>
