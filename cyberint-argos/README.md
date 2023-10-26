@@ -6,11 +6,11 @@
 
 2. At the top right of the screen press the profile button and then enter the "USER SETTINGS".
 
-3. In the user settings press at three doted in the top right.
+3. In the user settings press at three dots in the top right.
 
 4. Press the "Generate API Token" button.
 
-5. Here you can see your api token.
+5. Here you can see your API token.
 
 ## QRadar Log Source Configuration
 A workflow XML document defines the behavior of the Universal Cloud REST API protocol. To ingest data from an endpoint through the Universal REST API protocol, you can create a log source on the QRadar® Console using the Log Source Management app. In the Workflow field of the log source, you can specify how the endpoint can communicate with QRadar using the Universal REST API protocol.
@@ -23,7 +23,7 @@ The parameters XML document specifies the user settings for this log source, inc
 
 3. Then click Create New and insert the name (_Cybeirnt API_).
 
-4. To create the log source, go to admin panel and click the QRadar Log Source Management app icon.
+4. To create the log source, go to the admin panel and click the QRadar Log Source Management app icon.
 
 5. Click New Log Source > Single Log Source.
 
