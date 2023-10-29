@@ -71,23 +71,22 @@
                 <Abort reason="Cyberint API is not available" />
             </If>
 
-            <Log type="ERROR" message="Cyberint abort reason:  ${/getAlerts}"/>
-            <Abort reason="Cyberint abort reason:  ${/getAlerts}" />
+            <Log type="ERROR" message="Cyberint abort reason: ${/getAlerts}"/>
         </If>
 
         <!-- Post Events, if any -->
-            <If condition="count(/getAlerts/body/alerts) > 0">
-                <PostEvents path="/getAlerts/body/alerts" source="${/domainName}" />
+        <If condition="count(/getAlerts/body/alerts) > 0">
+            <PostEvents path="/getAlerts/body/alerts" source="${/domainName}" />
 
-                <!-- Update the bookmark -->
-                <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss" timeZone="${/timeZone}" date="${max(/getAlerts/body/alerts/update_date)}" savePath="/lastAlertsTime" />
-                <Set path="/lastAlert" value="${/lastAlertsTime}" />
-                <Set path="/bookmark" value="${/lastAlertsTime + 1000}" />
-            </If>
-            <Else>
-                <Set path="/heartBeatLog" value="The connection to the Cyberint API was successfully established; however, there are no new alerts available for retrieval at this moment. The last alert received was at: ${/lastAlert} (UTC)." />
-                <PostEvent path="/heartBeatLog" source="${/domainName}" />
-            </Else>
+            <!-- Update the bookmark -->
+            <ParseDate pattern="yyyy-MM-dd'T'HH:mm:ss" timeZone="${/timeZone}" date="${max(/getAlerts/body/alerts/update_date)}" savePath="/lastAlertsTime" />
+            <Set path="/lastAlert" value="${/lastAlertsTime}" />
+            <Set path="/bookmark" value="${/lastAlertsTime + 1000}" />
+        </If>
+        <Else>
+            <Set path="/heartBeatLog" value="The connection to the Cyberint API was successfully established; however, there are no new alerts available for retrieval at this moment. The last alert received was at: ${/lastAlert} (UTC)." />
+            <PostEvent path="/heartBeatLog" source="${/domainName}" />
+        </Else>
     </Actions>
     <Tests>
         <DNSResolutionTest host="${/domainName}.cyberint.io" />
