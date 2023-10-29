@@ -52,4 +52,4 @@ domainName                            | Domain Name | https://\<MyCompuny>.cyber
 apiKey                             | API Key | False | Authentication | True | Cyberint API token for QRadar.
 severity                            | Severity | "very_high" "high", "medium", "low" | Array of String | False | You can specify the alert severity to pull.
 status                              | Status | "open", "acknowledged", "closed" | Array of String | False | You can specify the alert status to pull.
-| timeZone    | Time Zone             | UTC      | String         | No             | Time zone selection.                             |
+timeZone                            | Time Zone  | UTC      | String         | No             | Time zone selection.                             
