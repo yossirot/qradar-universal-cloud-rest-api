@@ -24,7 +24,7 @@
         <!-- Get Alerts -->
         <CallEndpoint url="https://${/domainName}.cyberint.io/alert/api/v1/alerts" method="POST" savePath="/getAlerts" >
             <RequestHeader name="Cookie" value="access_token=${/apiKey}; Path=/;" />
-            <RequestHeader name="Integration-Source" value="QRADAR;${/domainName}" />
+            <RequestHeader name="x-integration-source" value="QRADAR;${/domainName}" />
             <RequestBody type="application/json" encoding="UTF-8">
                 {
                     "page": 1,
