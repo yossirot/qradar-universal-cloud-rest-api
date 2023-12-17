@@ -241,7 +241,7 @@
                 </ForEach>
 
                 <Set path="/fetched_events_number" value="count(/get_${/report_type}_reports/body/data)" />
-                <Add path="/counter" value="1" />
+                <Set path="/counter" value="${/counter} + 1" />
 
                 <Log type="INFO" message="${/fetched_events_number} events for were fetched for '${/report_type}'." />
 
