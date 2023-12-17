@@ -10,6 +10,8 @@
 	<Value name="events_per_poll" value="100"/>
 	<!-- Exclude Personal Identifiable Information from the reports. -->
 	<Value name="exclude_pii" value="false"/>
+	<!-- Number of days in the past from which events will be initially retrieved. -->
+	<Value name="initial_event_fetch_period" value="7"/>
 
 	<!-- Report types to poll. -->
 	<Value name="poll_alert" value="true"/>

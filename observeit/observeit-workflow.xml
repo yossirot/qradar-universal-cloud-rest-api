@@ -12,6 +12,8 @@
             description="Max number of records to return per poll" default="100" />
         <Parameter name="exclude_pii" label="Exclude Personal Information"
             description="Exclude Personal Identifiable Information from the reports." default="false" />
+        <Parameter name="initial_event_fetch_period" label="Initial Event Fetch Period in Days"
+            description="Number of days in the past from which events will be initially retrieved." default="7" />
 
         <Parameter name="poll_alert" label="Poll Alert" description="Alert Events." default="false" />
         <Parameter name="poll_configuration_activity" label="Poll Configuration Activity" description="Audit Configuration Activity." default="false" />
@@ -127,7 +129,8 @@
 
         <ForEach item="/report_type" items="/included_report_types">
             <!-- Initialize the risingValue filter for the first run. -->
-            <Initialize path="/risingValue_${/report_type}" value="${time() - 604800000}" />
+            <Initialize path="/risingValue_${/report_type}" value="${time() - ${/initial_event_fetch_period} * 86400}" />
+            <Log type="INFO" message="'risingValue' time for '${/report_type}' is: ${/risingValue_${/report_type}}" />
 
             <!-- Handle PII. -->
             <If condition="${/exclude_pii}">
@@ -196,7 +199,7 @@
             <Set path="/counter" value="1" />
 
             <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
-            <DoWhile condition="${/fetched_events_number} > 0">
+            <DoWhile condition="${/events_per_poll} = ${/fetched_events_number}">
                 <Log type="INFO" message="Fetching page number ${/counter} for '${/report_type}'..." />
 
                 <!-- Get the reports. -->
@@ -240,8 +243,8 @@
                     <Add path="/report_events" value="${/report_data}" />
                 </ForEach>
 
-                <Set path="/fetched_events_number" value="count(/get_${/report_type}_reports/body/data)" />
-                <Set path="/counter" value="${/counter} + 1" />
+                <Set path="/fetched_events_number" value="${count(/get_${/report_type}_reports/body/data)}" />
+                <Set path="/counter" value="${/counter + 1}" />
 
                 <Log type="INFO" message="${/fetched_events_number} events for were fetched for '${/report_type}'." />
 
