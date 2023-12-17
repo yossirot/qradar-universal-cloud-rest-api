@@ -147,7 +147,7 @@
                     </If>
 
                     <Abort reason="${/get_${/report_type}_fields}" />
-		        	<Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}" />
+                    <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}" />
                 </If>
 
                 <!-- Create an empty string that will hold the included fields.  -->
@@ -181,11 +181,14 @@
             </If>
 
             <!-- Get the reports. -->
-            <CallEndpoint url="${/hostname}/v2/apis/report;realm=observeit/reports/${/report_type}/data" method="GET" savePath="/get_${/report_type}_reports" >
+            <CallEndpoint url="${/hostname}/v2/apis/report;realm=observeit/reports/${/report_type}/stream" method="GET" savePath="/get_${/report_type}_reports" >
                 <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
                 <BearerAuthentication token="${/bearer_token}" />
                 <QueryParameter name="rql"
                     value="and(gt(risingValue,epoch:${/risingValue_${/report_type}}),select(${/${/report_type}_field_string}),limit(${/events_per_poll},0))" />
+                <QueryParameter name="fields" value="${/${/report_type}_field_string}" />
+                <QueryParameter name="limit" value="${/events_per_poll}" />
+                <QueryParameter name="since" value="${/risingValue_${/report_type}}" />
             </CallEndpoint>
 
             <!-- Handle errors. -->
@@ -204,7 +207,7 @@
                 </If>
 
                 <Abort reason="${/get_${/report_type}_reports}" />
-		    	<Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}" />
+                <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}" />
             </If>
 
             <!-- Create a dictionary of the report type. -->
@@ -225,10 +228,10 @@
                 <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
                 <Initialize path="/time_zone" value="UTC" />
 
-		    	<!-- Update the risingValue for next run. -->
+                <!-- Update the risingValue for next run. -->
                 <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/report_events/risingValue)}" savePath="/last_risingValue_${/report_type}" />
                 <FormatDate pattern="${/time_format}" timeZone="${/time_zone}" time="${/last_risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
-		    	<ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
+                <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
             </If>
         </ForEach>
 	</Actions>
