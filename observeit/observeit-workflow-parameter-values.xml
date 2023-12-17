@@ -8,23 +8,10 @@
 
 	<!-- Max number of records to return per poll -->
 	<Value name="events_per_poll" value="100"/>
-	<!-- Exclude Personal Identifiable Information from the reports. -->
-	<Value name="exclude_pii" value="false"/>
 	<!-- Number of days in the past from which events will be initially retrieved. -->
 	<Value name="initial_event_fetch_period" value="7"/>
-
-	<!-- Report types to poll. -->
-	<Value name="poll_alert" value="true"/>
-	<Value name="poll_configuration_activity" value="true"/>
-	<Value name="poll_login_activity" value="true"/>
-	<Value name="poll_saved_session_activity" value="true"/>
-	<Value name="poll_session_playback_activity" value="true"/>
-	<Value name="poll_system_event" value="true"/>
-	<Value name="poll_command_activity_with_output" value="true"/>
-	<Value name="poll_command_output_stream" value="true"/>
-	<Value name="poll_dba_activity" value="true"/>
-	<Value name="poll_file_activity" value="true"/>
-	<Value name="poll_interface_activity" value="true"/>
-	<Value name="poll_messaging_actions_activity" value="true"/>
-	<Value name="poll_session" value="true"/>
+	<!-- Comma-seperated list of report types to poll. -->
+	<Value name="report_types" value="alert_v0,audit_configuration_v0,audit_logins_v0,audit_saved_sessions_v0,audit_session_playback_v0,system_events_v0,user_command_activity_with_output_v0,user_command_output_stream_v0,user_dba_activity_v0,user_file_activity_v0,user_interface_activity_v0,user_messaging_actions_activity_v0,user_session_v0"/>
+	<!-- Comma-seperated list of Personal Identifiable Information (PII) to exclude. -->
+	<Value name="piis_to_exclude" value="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName"/>
 </WorkflowParameterValues>

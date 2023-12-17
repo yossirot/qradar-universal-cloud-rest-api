@@ -10,24 +10,12 @@
 
         <Parameter name="events_per_poll" label="Events Per Poll"
             description="Max number of records to return per poll" default="100" />
-        <Parameter name="exclude_pii" label="Exclude Personal Information"
-            description="Exclude Personal Identifiable Information from the reports." default="false" />
         <Parameter name="initial_event_fetch_period" label="Initial Event Fetch Period in Days"
             description="Number of days in the past from which events will be initially retrieved." default="7" />
-
-        <Parameter name="poll_alert" label="Poll Alert" description="Alert Events." default="false" />
-        <Parameter name="poll_configuration_activity" label="Poll Configuration Activity" description="Audit Configuration Activity." default="false" />
-        <Parameter name="poll_login_activity" label="Poll Login Activity" description="Audit Login Activity." default="false" />
-        <Parameter name="poll_saved_session_activity" label="Poll Saved Session Activity" description="Audit Saved Sessions Activity." default="false" />
-        <Parameter name="poll_session_playback_activity" label="Poll Session Playback Activity" description="Audit Session Playback Activity." default="false" />
-        <Parameter name="poll_system_event" label="Poll System Event" description="System Events." default="false" />
-        <Parameter name="poll_command_activity_with_output" label="Poll Comand Activity with Output" description="UNIX Command Events." default="false" />
-        <Parameter name="poll_command_output_stream" label="Poll Command Output Stream" description="UNIX Output Streams" default="false" />
-        <Parameter name="poll_dba_activity" label="Poll Database Activity" description="Database Events." default="false" />
-        <Parameter name="poll_file_activity" label="Poll File Activity" description="File Monitoring Activity Events." default="false" />
-        <Parameter name="poll_interface_activity" label="Poll Interface Activity" description="Windows/Mac user interface interaction events." default="false" />
-        <Parameter name="poll_messaging_actions_activity" label="Poll Messaging Action Activity" description="Messaging Actions Activity Events." default="false" />
-        <Parameter name="poll_session" label="Poll Session Activity" description="Summary of Activity for a completed or in-progress user session." default="false" />
+        <Parameter name="report_types" label="Report Types"
+            description="Comma-seperated list of report types to poll." default="alert_v0,audit_configuration_v0,audit_logins_v0,audit_saved_sessions_v0,audit_session_playback_v0,system_events_v0,user_command_activity_with_output_v0,user_command_output_stream_v0,user_dba_activity_v0,user_file_activity_v0,user_interface_activity_v0,user_messaging_actions_activity_v0,user_session_v0" />
+        <Parameter name="piis_to_exclude" label="Personal Identifiable Information to Exclude"
+            description="Comma-seperated list of Personal Identifiable Information (PII) to exclude." default="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName" />
     </Parameters>
 
     <Actions>
@@ -70,75 +58,33 @@
         </If>
 
         <Log type="INFO" message="Bearer token received!" />
-
-
         <!-- Save the bearer token. -->
 		<Set path="/bearer_token" value="${/get_bearer_token/body/access_token}" />
 
-        <!-- Create a list of report types to include. -->
-        <Set path="/included_report_types" value="[]" />
-
-        <!-- Add report types to the list according to the user input. -->
-        <If condition="${/poll_alert}">
-            <Add path="/included_report_types" value="alert_v0" />
-        </If>
-        <If condition="${/poll_configuration_activity}">
-            <Add path="/included_report_types" value="audit_configuration_v0" />
-        </If>
-        <If condition="${/poll_login_activity}">
-            <Add path="/included_report_types" value="audit_logins_v0" />
-        </If>
-        <If condition="${/poll_saved_session_activity}">
-            <Add path="/included_report_types" value="audit_saved_sessions_v0" />
-        </If>
-        <If condition="${/poll_session_playback_activity}">
-            <Add path="/included_report_types" value="audit_session_playback_v0" />
-        </If>
-        <If condition="${/poll_system_event}">
-            <Add path="/included_report_types" value="system_events_v0" />
-        </If>
-        <If condition="${/poll_command_activity_with_output}">
-            <Add path="/included_report_types" value="user_command_activity_with_output_v0" />
-        </If>
-        <If condition="${/poll_command_output_stream}">
-            <Add path="/included_report_types" value="user_command_output_stream_v0" />
-        </If>
-        <If condition="${/poll_dba_activity}">
-            <Add path="/included_report_types" value="user_dba_activity_v0" />
-        </If>
-        <If condition="${/poll_file_activity}">
-            <Add path="/included_report_types" value="user_file_activity_v0" />
-        </If>
-        <If condition="${/poll_interface_activity}">
-            <Add path="/included_report_types" value="user_interface_activity_v0" />
-        </If>
-        <If condition="${/poll_messaging_actions_activity}">
-            <Add path="/included_report_types" value="user_messaging_actions_activity_v0" />
-        </If>
-        <If condition="${/poll_session}">
-            <Add path="/included_report_types" value="user_session_v0" />
-        </If>
+        <Split value="${/piis_to_exclude}" delimiter="," savePath="/piis_to_exclude" />
+        <Split value="${/report_types}" delimiter="," savePath="/report_types" />
 
         <!-- Incase the user has set all poll parameters to false. -->
-        <If condition="count(/included_report_types) = 0">
-            <Abort reason="${/included_report_types}" />
+        <If condition="count(/report_types) = 0">
+            <Abort reason="${/report_types}" />
             <Log type="ERROR" message="ObserveIT abort reason: Please choose at least one report type to poll." />
         </If>
 
-        <Log type="INFO" message="The following report types will be fetched: ${/included_report_types}." />
+        <Log type="INFO" message="The following report types will be fetched: ${/report_types}." />
 
-        <ForEach item="/report_type" items="/included_report_types">
+        <!-- Initialize a timer to calculate the runtime for each report type and total runtime of the script. -->
+        <Set path="/total_start_time" value="${time()}" />
+
+        <ForEach item="/report_type" items="/report_types">
+            <Set path="/individual_start_time" value="${time()}" />
+
             <!-- Initialize the risingValue filter for the first run. -->
             <Initialize path="/risingValue_${/report_type}" value="${time() - ${/initial_event_fetch_period} * 86400}" />
             <Log type="INFO" message="'risingValue' time for '${/report_type}' is: ${/risingValue_${/report_type}}" />
 
             <!-- Handle PII. -->
-            <If condition="${/exclude_pii}">
+            <If condition="count(/piis_to_exclude) > 0">
                 <!-- Create a list of PIIs to exclude. -->
-                <Initialize
-                value="[loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName]"
-                path="/piis_to_exclude" />
-
                 <Log type="INFO" message="Fetching fields for the report type '${/report_type}'..." />
 
                 <!-- Get a report type fields. -->
@@ -261,13 +207,15 @@
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/report_events/risingValue)}" savePath="/last_risingValue_${/report_type}" />
                     <FormatDate pattern="${/time_format}" timeZone="${/time_zone}" time="${/last_risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
+
+                    <Log type="INFO" message="'risingValue' time for '${/report_type}' updated to: ${/risingValue_${/report_type}}" />
                 </If>
             </DoWhile>
 
-            <Log type="INFO" message="Done fetching events for '${/report_type}'." />
+            <Log type="INFO" message="Done fetching events for '${/report_type}'. Total time in milliseconds is: ${time() - /individual_start_time}" />
         </ForEach>
 
-        <Log type="INFO" message="Done fetching events." />
+        <Log type="INFO" message="Done fetching events. Total time in milliseconds is: ${time() - /total_start_time}" />
 	</Actions>
 
     <Tests>
