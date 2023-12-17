@@ -199,7 +199,7 @@
             <Set path="/counter" value="1" />
 
             <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
-            <DoWhile condition="${/events_per_poll} = ${/fetched_events_number}">
+            <DoWhile condition="${/fetched_events_number} >= ${/events_per_poll}">
                 <Log type="INFO" message="Fetching page number ${/counter} for '${/report_type}'..." />
 
                 <!-- Get the reports. -->
