@@ -79,7 +79,7 @@
             <Set path="/individual_start_time" value="${time()}" />
 
             <!-- Initialize the risingValue filter for the first run. -->
-            <Initialize path="/risingValue_${/report_type}" value="${time() - ${/initial_event_fetch_period} * 86400}" />
+            <Initialize path="/risingValue_${/report_type}" value="${/total_start_time - /initial_event_fetch_period * 86400 * 1000}" />
             <Log type="INFO" message="'risingValue' time for '${/report_type}' is: ${/risingValue_${/report_type}}" />
 
             <!-- Handle PII. -->
