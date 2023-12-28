@@ -11,7 +11,7 @@
         <Parameter name="time_zone" label="Time Zone"
             description="The timezone used in ObserveIT." default="UTC" />
         <Parameter name="events_per_poll" label="Events Per Poll"
-            description="Max number of records to return per poll" default="100" />
+            description="Max number of records to return per poll.  Note: a large fetch may cause timeout errors." default="100" />
         <Parameter name="initial_event_fetch_period" label="Initial Event Fetch Period in Days"
             description="Number of days in the past from which events will be initially retrieved." default="7" />
         <Parameter name="report_types" label="Report Types"
