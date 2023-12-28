@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
-	<!-- Instance URL or IP -->
-	<Value name="hostname" value=""/>
+	<!-- [hostname] [REQUIRED] - Instance URL or IP. -->
+	<Value name="hostname" value="https://myobserveit.com"/>
 	<!-- Can be received through the Developer Portal by selecting Credentials and pressing the Create App button. -->
+	<!-- [client_id] [REQUIRED] -->
 	<Value name="client_id" value=""/>
+	<!-- [client_secret] [REQUIRED] -->
 	<Value name="client_secret" value=""/>
 
-	<!-- Max number of records to return per poll -->
+
+	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The timezone used in ObserveIT. -->
+	<Value name="time_zone" value="UTC"/>
+	<!-- [events_per_poll] [OPTIONAL] [DEFAULT=100] - Max number of records to return per poll. -->
 	<Value name="events_per_poll" value="100"/>
-	<!-- Number of days in the past from which events will be initially retrieved. -->
+	<!-- [initial_event_fetch_period] [OPTIONAL] [DEFAULT=7]- Number of days in the past from which events will be initially retrieved. -->
 	<Value name="initial_event_fetch_period" value="7"/>
-	<!-- Comma-seperated list of report types to poll. -->
+	<!-- [report_types] [OPTIONAL] [DEFAULT=alert_v0,audit_configuration_v0,audit_logins_v0,audit_saved_sessions_v0,audit_session_playback_v0,system_events_v0,user_command_activity_with_output_v0,user_command_output_stream_v0,user_dba_activity_v0,user_file_activity_v0,user_interface_activity_v0,user_messaging_actions_activity_v0,user_session_v0"] - Comma-separated list of report types to poll. -->
 	<Value name="report_types" value="alert_v0,audit_configuration_v0,audit_logins_v0,audit_saved_sessions_v0,audit_session_playback_v0,system_events_v0,user_command_activity_with_output_v0,user_command_output_stream_v0,user_dba_activity_v0,user_file_activity_v0,user_interface_activity_v0,user_messaging_actions_activity_v0,user_session_v0"/>
-	<!-- Comma-seperated list of Personal Identifiable Information (PII) to exclude. -->
+	<!-- [piis_to_exclude] [OPTIONAL] [DEFAULT=loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName"] - Comma-separated list of Personal Identifiable Information (PII) to exclude. -->
 	<Value name="piis_to_exclude" value="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName"/>
 </WorkflowParameterValues>

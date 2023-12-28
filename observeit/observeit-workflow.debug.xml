@@ -1,6 +1,6 @@
 <Workflow name="Qmasters ObserveIT" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
-		<Parameter name="hostname" label="Host Name" description="URL or IP for the instance." required="true" default="myobserveit.com" />
+		<Parameter name="hostname" label="Host Name" description="URL or IP for the instance." required="true" default="https://myobserveit.com" />
 		<Parameter name="client_id" label="Organization Key"
             description="Can be received through the Developer Portal by selecting Credentials and pressing the Create App button."
             required="true" />
@@ -8,22 +8,24 @@
             description="Can be received through the Developer Portal by selecting Credentials and pressing the Create App button."
             required="true" secret="true" />
 
+        <Parameter name="time_zone" label="Time Zone"
+            description="The timezone used in ObserveIT." default="UTC" />
         <Parameter name="events_per_poll" label="Events Per Poll"
             description="Max number of records to return per poll" default="100" />
         <Parameter name="initial_event_fetch_period" label="Initial Event Fetch Period in Days"
             description="Number of days in the past from which events will be initially retrieved." default="7" />
         <Parameter name="report_types" label="Report Types"
-            description="Comma-seperated list of report types to poll." default="alert_v0,audit_configuration_v0,audit_logins_v0,audit_saved_sessions_v0,audit_session_playback_v0,system_events_v0,user_command_activity_with_output_v0,user_command_output_stream_v0,user_dba_activity_v0,user_file_activity_v0,user_interface_activity_v0,user_messaging_actions_activity_v0,user_session_v0" />
+            description="Comma-separated list of report types to poll." default="alert_v0,audit_configuration_v0,audit_logins_v0,audit_saved_sessions_v0,audit_session_playback_v0,system_events_v0,user_command_activity_with_output_v0,user_command_output_stream_v0,user_dba_activity_v0,user_file_activity_v0,user_interface_activity_v0,user_messaging_actions_activity_v0,user_session_v0" />
         <Parameter name="piis_to_exclude" label="Personal Identifiable Information to Exclude"
-            description="Comma-seperated list of Personal Identifiable Information (PII) to exclude." default="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName" />
+            description="Comma-separated list of Personal Identifiable Information (PII) to exclude." default="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName" />
     </Parameters>
 
     <Actions>
 		<!-- Clear the log source status before a new workflow run starts. -->
         <ClearStatus />
         <Log type="INFO" message="Authenticating to ObserveIT, fetching bearer token..." />
-        <Set path="/debug_logs" value="DEBUG: Authenticating to ObserveIT, fetching bearer token..."/>
-        <PostEvent path="/debug_logs" source="${/hostname}" />
+        <Set path="/debug_logs" value="ObserveIT DEBUG: Authenticating to ObserveIT, fetching bearer token..."/>
+        <PostEvent path="/debug_logs" source="ObserveIT:${/hostname}" />
 
 		<!-- Get Bearer Token. -->
 		<CallEndpoint url="${/hostname}/v2/apis/auth/oauth/token" method="POST" savePath="/get_bearer_token" >
@@ -41,36 +43,36 @@
             <If condition="/get_bearer_token/status_code = 400">
                 <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: ${/get_bearer_token/body/_status/message}" />
-                <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get token, reason: ${/get_bearer_token/body/_status/message}"/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: ${/get_bearer_token/body/_status/message}"/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
             </If>
             <If condition="/get_bearer_token/status_code = 401">
                 <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: Authentication error!" />
-                <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get token, reason: Authentication error!"/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: Authentication error!"/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
             </If>
             <If condition="/get_bearer_token/status_code = 404">
                 <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: URL not found!" />
-                <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get token, reason: URL not found!"/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: URL not found!"/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
             </If>
             <If condition="/get_bearer_token/status_code = 500">
                 <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: Invalid client_id" />
-                <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get token, reason: Invalid client_id"/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: Invalid client_id"/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
             </If>
 
             <Abort reason="${/get_bearer_token}" />
 			<Log type="ERROR" message="ObserveIT abort at get token, reason: ${/get_bearer_token}" />
-            <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get token, reason: ${/get_bearer_token}"/>
+            <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: ${/get_bearer_token}"/>
             <PostEvent path="/debug_logs" source="${/hostname}" />
         </If>
 
         <Log type="INFO" message="Bearer token received!" />
-        <Set path="/debug_logs" value="DEBUG: Bearer token received!"/>
+        <Set path="/debug_logs" value="ObserveIT DEBUG: Bearer token received!"/>
         <PostEvent path="/debug_logs" source="${/hostname}" />
         <!-- Save the bearer token. -->
 		<Set path="/bearer_token" value="${/get_bearer_token/body/access_token}" />
@@ -82,12 +84,12 @@
         <If condition="count(/report_types) = 0">
             <Abort reason="${/report_types}" />
             <Log type="ERROR" message="ObserveIT abort reason: Please choose at least one report type to poll." />
-            <Set path="/debug_logs" value="DEBUG: ObserveIT abort reason: Please choose at least one report type to poll."/>
+            <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort reason: Please choose at least one report type to poll."/>
             <PostEvent path="/debug_logs" source="${/hostname}" />
         </If>
 
         <Log type="INFO" message="The following report types will be fetched: ${/report_types}." />
-        <Set path="/debug_logs" value="DEBUG: The following report types will be fetched: ${/report_types}."/>
+        <Set path="/debug_logs" value="ObserveIT DEBUG: The following report types will be fetched: ${/report_types}."/>
         <PostEvent path="/debug_logs" source="${/hostname}" />
 
         <!-- Initialize a timer to calculate the runtime for each report type and total runtime of the script. -->
@@ -99,14 +101,14 @@
             <!-- Initialize the risingValue filter for the first run. -->
             <Initialize path="/risingValue_${/report_type}" value="${/total_start_time - /initial_event_fetch_period * 86400 * 1000}" />
             <Log type="INFO" message="'risingValue' time for '${/report_type}' is: ${/risingValue_${/report_type}}" />
-            <Set path="/debug_logs" value="DEBUG: 'risingValue' time for '${/report_type}' is: ${/risingValue_${/report_type}}"/>
+            <Set path="/debug_logs" value="ObserveIT DEBUG: 'risingValue' time for '${/report_type}' is: ${/risingValue_${/report_type}}"/>
             <PostEvent path="/debug_logs" source="${/hostname}" />
 
             <!-- Handle PII. -->
             <If condition="count(/piis_to_exclude) > 0">
                 <!-- Create a list of PIIs to exclude. -->
                 <Log type="INFO" message="Fetching fields for the report type '${/report_type}'..." />
-                <Set path="/debug_logs" value="DEBUG: Fetching fields for the report type '${/report_type}'..."/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: Fetching fields for the report type '${/report_type}'..."/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
 
                 <!-- Get a report type fields. -->
@@ -120,19 +122,19 @@
                     <If condition="/get_${/report_type}_fields/status_code = 401">
                         <Abort reason="${/get_${/report_type}_fields}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: Authentication error!" />
-                        <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: Authentication error!"/>
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: Authentication error!"/>
                         <PostEvent path="/debug_logs" source="${/hostname}" />
                     </If>
                     <If condition="/get_${/report_type}_fields/status_code = 404">
                         <Abort reason="${/get_${/report_type}_fields}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: URL not found!" />
-                        <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: URL not found!"/>
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: URL not found!"/>
                         <PostEvent path="/debug_logs" source="${/hostname}" />
                     </If>
 
                     <Abort reason="${/get_${/report_type}_fields}" />
                     <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}" />
-                    <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}"/>
+                    <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}"/>
                     <PostEvent path="/debug_logs" source="${/hostname}" />
                 </If>
 
@@ -168,18 +170,19 @@
             </If>
 
             <Log type="INFO" message="The following fields will be fetched for the report type '${/report_type}': ${/${/report_type}_field_string}." />
-            <Set path="/debug_logs" value="DEBUG: The following fields will be fetched for the report type '${/report_type}': ${/${/report_type}_field_string}."/>
+            <Set path="/debug_logs" value="ObserveIT DEBUG: The following fields will be fetched for the report type '${/report_type}': ${/${/report_type}_field_string}."/>
             <PostEvent path="/debug_logs" source="${/hostname}" />
             <Log type="INFO" message="Starting to fetch events through pagination for '${/report_type}'." />
-            <Set path="/debug_logs" value="DEBUG: Starting to fetch events through pagination for '${/report_type}'."/>
+            <Set path="/debug_logs" value="ObserveIT DEBUG: Starting to fetch events through pagination for '${/report_type}'."/>
             <PostEvent path="/debug_logs" source="${/hostname}" />
 
             <Set path="/counter" value="1" />
+            <Set path="/fetched_events_number" value="0" />
 
             <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
             <DoWhile condition="${/fetched_events_number} >= ${/events_per_poll}">
                 <Log type="INFO" message="Fetching page number ${/counter} for '${/report_type}'..." />
-                <Set path="/debug_logs" value="DEBUG: Fetching page number ${/counter} for '${/report_type}'..."/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: Fetching page number ${/counter} for '${/report_type}'..."/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
 
                 <!-- Get the reports. -->
@@ -196,30 +199,30 @@
                     <If condition="/get_${/report_type}_reports/status_code = 400">
                         <Abort reason="${/get_${/report_type}_reports}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}/body/_status/message" />
-                        <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}/body/_status/message"/>
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}/body/_status/message"/>
                         <PostEvent path="/debug_logs" source="${/hostname}" />
                     </If>
                     <If condition="/get_${/report_type}_reports/status_code = 401">
                         <Abort reason="${/get_${/report_type}_reports}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: Authentication error!" />
-                        <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} reports, reason: Authentication error!"/>
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} reports, reason: Authentication error!"/>
                         <PostEvent path="/debug_logs" source="${/hostname}" />
                     </If>
                     <If condition="/get_${/report_type}_reports/status_code = 404">
                         <Abort reason="${/get_${/report_type}_reports}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: URL not found!" />
-                        <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} reports, reason: URL not found!"/>
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} reports, reason: URL not found!"/>
                         <PostEvent path="/debug_logs" source="${/hostname}" />
                     </If>
 
                     <Abort reason="${/get_${/report_type}_reports}" />
                     <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}" />
-                    <Set path="/debug_logs" value="DEBUG: ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}"/>
+                    <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}"/>
                     <PostEvent path="/debug_logs" source="${/hostname}" />
                 </If>
 
                 <Log type="INFO" message="Done Fetching, processing data..." />
-                <Set path="/debug_logs" value="DEBUG: Done Fetching, processing data..."/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: Done Fetching, processing data..."/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
 
                 <!-- Create a dictionary of the report type. -->
@@ -237,19 +240,18 @@
                 <Set path="/counter" value="${/counter + 1}" />
 
                 <Log type="INFO" message="${/fetched_events_number} events for were fetched for '${/report_type}'." />
-                <Set path="/debug_logs" value="DEBUG: ${/fetched_events_number} events for were fetched for '${/report_type}'."/>
+                <Set path="/debug_logs" value="ObserveIT DEBUG: ${/fetched_events_number} events for were fetched for '${/report_type}'."/>
                 <PostEvent path="/debug_logs" source="${/hostname}" />
 
                 <!-- If there were any events, post them and update the risingValue timer to the latest one. -->
                 <If condition="${/fetched_events_number} > 0">
                     <Log type="INFO" message="Posting fetched events..." />
-                    <Set path="/debug_logs" value="DEBUG: Posting fetched events..."/>
+                    <Set path="/debug_logs" value="ObserveIT DEBUG: Posting fetched events..."/>
                     <PostEvent path="/debug_logs" source="${/hostname}" />
 
                     <PostEvents path="/report_events" source="${/hostname}" />
 
                     <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
-                    <Initialize path="/time_zone" value="UTC" />
 
                     <!-- Update the risingValue for next run. -->
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/report_events/risingValue)}" savePath="/last_risingValue_${/report_type}" />
@@ -257,18 +259,18 @@
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
 
                     <Log type="INFO" message="'risingValue' time for '${/report_type}' updated to: ${/risingValue_${/report_type}}" />
-                    <Set path="/debug_logs" value="DEBUG: 'risingValue' time for '${/report_type}' updated to: ${/risingValue_${/report_type}}"/>
+                    <Set path="/debug_logs" value="ObserveIT DEBUG: 'risingValue' time for '${/report_type}' updated to: ${/risingValue_${/report_type}}"/>
                     <PostEvent path="/debug_logs" source="${/hostname}" />
                 </If>
             </DoWhile>
 
             <Log type="INFO" message="Done fetching events for '${/report_type}'. Total time in milliseconds is: ${time() - /individual_start_time}" />
-            <Set path="/debug_logs" value="DEBUG: Done fetching events for '${/report_type}'. Total time in milliseconds is: ${time() - /individual_start_time}"/>
+            <Set path="/debug_logs" value="ObserveIT DEBUG: Done fetching events for '${/report_type}'. Total time in milliseconds is: ${time() - /individual_start_time}"/>
             <PostEvent path="/debug_logs" source="${/hostname}" />
         </ForEach>
 
         <Log type="INFO" message="Done fetching events. Total time in milliseconds is: ${time() - /total_start_time}" />
-        <Set path="/debug_logs" value="DEBUG: Done fetching events. Total time in milliseconds is: ${time() - /total_start_time}"/>
+        <Set path="/debug_logs" value="ObserveIT DEBUG: Done fetching events. Total time in milliseconds is: ${time() - /total_start_time}"/>
         <PostEvent path="/debug_logs" source="${/hostname}" />
 	</Actions>
 
