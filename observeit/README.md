@@ -60,3 +60,4 @@ If you want to ingest data from an endpoint using Universal Rest API Protocol, c
 - Copy the Workflow XML into the Workflow field.
 - Populate the Workflow Parameters according to the table above and copy it into the Workflow Parameters Values field.
 - Make sure to turn off the Coalescing Events to avoid grouping of the events on the basis of Source and Destination IP.
+- It is advised to open an individual log source for report types that fetch large amount of data.
