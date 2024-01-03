@@ -1,0 +1,118 @@
+<Workflow name="Qmasters ServiceNow Menora -" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
+    <Parameters>
+		<Parameter name="instanceName" label="Instance Name" description="." required="true" />
+		<Parameter name="username" label="Username" description="." required="true" />
+		<Parameter name="password" label="API Secret" description="." required="true" secret="true" />
+
+        <Parameter name="timeZone" label="Time Zone" description="The timezone to be used." default="UTC" />
+        <Parameter name="eventsPerFetch" label="Events Per Fetch" description="Max number of records to return per fetch. Note: a large fetch may cause timeout errors." default="100" />
+        <Parameter name="initialFetchPeriod" label="Initial Event Fetch Period in Days" description="Number of days in the past from which events will be initially retrieved." default="7" />
+        <Parameter name="tablesToFetch" label="Tables to Fetch" description="Comma-separated list of tables to fetch." default="upgrade_history_update_xml,sys_audit,isc_event" />
+    </Parameters>
+
+    <Actions>
+		<!-- Clear the log source status before a new workflow run starts. -->
+        <ClearStatus />
+
+        <Split value="${/tablesToFetch}" delimiter="," savePath="/tablesToFetch" />
+
+        <!-- Incase the user has set all poll parameters to false. -->
+        <If condition="count(/tablesToFetch) = 0">
+            <Abort reason="${/tablesToFetch}" />
+            <Log type="ERROR" message="ServiceNow Menora - abort reason: Please choose at least one table to fetch." />
+        </If>
+
+        <Log type="INFO" message="The following tables will be fetched: ${/tablesToFetch}." />
+
+        <!-- Initialize a timer to calculate the runtime for each report type and total runtime of the script. -->
+        <Set path="/totalStartTime" value="${time()}" />
+
+        <ForEach item="/table" items="/tablesToFetch">
+            <Set path="/individualStartTime" value="${time()}" />
+
+            <!-- Initialize the lastFetched filter for the first run. -->
+            <Initialize path="/lastFetched${/table}" value="${/totalStartTime - /initial_event_fetch_period * 86400 * 1000}" />
+            <Log type="INFO" message="'lastFetched' time for '${/table}' is: ${/lastFetched${/table}}" />
+
+            <Log type="INFO" message="Starting to fetch events through pagination for '${/table}'." />
+            <Set path="/counter" value="1" />
+            <Set path="/fetchedEventsNumber" value="0" />
+
+            <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
+            <DoWhile condition="${/fetchedEventsNumber} >= ${/eventsPerFetch}">
+                <Log type="INFO" message="Fetching page number ${/counter} for '${/table}'..." />
+
+                <!-- Get the reports. -->
+                <CallEndpoint url="https${/instanceName}.service-now.com/api/now/table/${/table}" method="GET" savePath="/${/table}Data" >
+                    <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
+                    <BearerAuthentication token="${/bearer_token}" />
+                    <QueryParameter name="sysparm_limit" value="${/eventsPerFetch}" />
+                    <QueryParameter name="sysparm_query" value="upgr_sys_updated_on:'${/lastFetched${/table}}'" />
+                </CallEndpoint>
+
+                <!-- Handle errors. -->
+                <If condition="/${/table}Data/status_code != 200">
+                    <If condition="/${/table}Data/status_code = 400">
+                        <Abort reason="${/${/table}Data}" />
+                        <Log type="ERROR" message="ServiceNow Menora - abort at get ${/table} reports, reason: ${/${/table}Data}/body/_status/message" />
+                    </If>
+                    <If condition="/${/table}Data/status_code = 401">
+                        <Abort reason="${/${/table}Data}" />
+                        <Log type="ERROR" message="ServiceNow Menora - abort at get ${/table} reports, reason: Authentication error!" />
+                    </If>
+                    <If condition="/${/table}Data/status_code = 404">
+                        <Abort reason="${/${/table}Data}" />
+                        <Log type="ERROR" message="ServiceNow Menora - abort at get ${/table} reports, reason: URL not found!" />
+                    </If>
+
+                    <Abort reason="${/${/table}Data}" />
+                    <Log type="ERROR" message="ServiceNow Menora - abort at get ${/table} reports, reason: ${/${/table}Data}" />
+                </If>
+
+                <!-- <Log type="INFO" message="Done Fetching, processing data..." /> -->
+
+                <!-- Create a dictionary of the report type. -->
+                <!-- <Set path="/table_dict" value="{'table': ${/table}}" /> -->
+                <!-- Initialize an empty list for events -->
+                <!-- <Set path="/report_events" value="[]" /> -->
+
+                <!-- Merge the report type to each event and then post it. -->
+                <!-- <ForEach item="/report_data" items="/get_${/table}/body/result">
+                    <Merge sourcePath="/table_dict" targetPath="/report_data" />
+                    <Add path="/report_events" value="${/report_data}" />
+                </ForEach> -->
+
+                <Set path="/fetchedEventsNumber" value="${count(/get_${/table}/body/result)}" />
+                <Set path="/counter" value="${/counter + 1}" />
+
+                <Log type="INFO" message="${/fetchedEventsNumber} events for were fetched for '${/table}'." />
+
+                <!-- If there were any events, post them and update the lastFetched timer to the latest one. -->
+                <If condition="${/fetchedEventsNumber} > 0">
+                    <Log type="INFO" message="Posting fetched events..." />
+
+                    <PostEvents path="/report_events" source="${/hostname}" />
+
+                    <Initialize path="/timeFormat" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
+
+                    <!-- Update the lastFetched for next run. -->
+                    <ParseDate pattern="${/timeFormat}" timeZone="${/timeZone}" date="${max(/report_events/upgr_sys_updated_on)}" savePath="/lastFetched${/table}" />
+                    <FormatDate pattern="${/timeFormat}" timeZone="${/timeZone}" time="${/lastFetched${/table}}" savePath="/lastFetched${/table}" />
+                    <ParseDate pattern="${/timeFormat}" timeZone="${/timeZone}" date="${/lastFetched${/table}}" savePath="/lastFetched${/table}" />
+
+                    <Log type="INFO" message="'lastFetched' time for '${/table}' updated to: ${/lastFetched${/table}}" />
+                </If>
+            </DoWhile>
+
+            <Log type="INFO" message="Done fetching events for '${/table}'. Total time in milliseconds is: ${time() - /individualStartTime}" />
+        </ForEach>
+
+        <Log type="INFO" message="Done fetching events. Total time in milliseconds is: ${time() - /totalStartTime}" />
+	</Actions>
+
+    <Tests>
+        <DNSResolutionTest host="${/hostname}" />
+        <TCPConnectionTest host="${/hostname}" />
+        <HTTPConnectionThroughProxyTest url="${/hostname}" expectedResponseStatus="404" />
+    </Tests>
+</Workflow>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
+	<!-- [instanceName] [REQUIRED] - . -->
+	<Value name="instanceName" value=""/>
+	<!-- . -->
+	<!-- [username] [REQUIRED] -->
+	<Value name="username" value=""/>
+	<!-- [password] [REQUIRED] -->
+	<Value name="password" value=""/>
+
+
+	<!-- [timeZone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->
+	<Value name="timeZone" value="UTC"/>
+	<!-- [eventsPerFetch] [OPTIONAL] [DEFAULT=100] - Max number of records to return per fetch. Note: a large fetch may cause timeout errors. -->
+	<Value name="eventsPerFetch" value="100"/>
+	<!-- [initialFetchPeriod] [OPTIONAL] [DEFAULT=7] - Number of days in the past from which events will be initially retrieved. -->
+	<Value name="initialFetchPeriod" value="7"/>
+	<!-- [tablesToFetch] [OPTIONAL] [DEFAULT=upgrade_history_update_xml,sys_audit,isc_event] - Comma-separated list of tables to fetch. -->
+	<Value name="tablesToFetch" value="upgrade_history_update_xml,sys_audit,isc_event"/>
+</WorkflowParameterValues>
