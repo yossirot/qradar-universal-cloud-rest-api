@@ -81,6 +81,7 @@
 
         <!-- Initialize a timer to calculate the runtime for each report type and total runtime of the script. -->
         <Set path="/total_start_time" value="${time()}" />
+        <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
 
         <ForEach item="/report_type" items="/report_types">
             <Set path="/individual_start_time" value="${time()}" />
@@ -212,10 +213,7 @@
                 <!-- If there were any events, post them and update the risingValue timer to the latest one. -->
                 <If condition="${/fetched_events_number} > 0">
                     <Log type="INFO" message="Posting fetched events..." />
-
                     <PostEvents path="/report_events" source="${/identifier}" />
-
-                    <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
 
                     <!-- Update the risingValue for next run. -->
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/report_events/risingValue)}" savePath="/last_risingValue_${/report_type}" />
