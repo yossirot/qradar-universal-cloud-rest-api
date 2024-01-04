@@ -59,6 +59,12 @@
                 <PostEvent path="/debug_logs" source="${/identifier}" />
                 <Abort reason="${/get_bearer_token}" />
             </If>
+            <If condition="/get_bearer_token/status_code = 408">
+                <Log type="ERROR" message="ObserveIT abort at get token, reason: Timeout error!" />
+                <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: Timeout error!"/>
+                <PostEvent path="/debug_logs" source="${/identifier}" />
+                <Abort reason="${/get_bearer_token}" />
+            </If>
             <If condition="/get_bearer_token/status_code = 500">
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: Invalid client_id" />
                 <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get token, reason: Invalid client_id"/>
@@ -132,6 +138,12 @@
                         <PostEvent path="/debug_logs" source="${/identifier}" />
                         <Abort reason="${/get_${/report_type}_fields}" />
                     </If>
+                    <If condition="/get_${/report_type}_fields/status_code = 408">
+                        <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: Timeout error!" />
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: Timeout error!"/>
+                        <PostEvent path="/debug_logs" source="${/identifier}" />
+                        <Abort reason="${/get_${/report_type}_fields}" />
+                    </If>
 
                     <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}" />
                     <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}"/>
@@ -179,6 +191,7 @@
 
             <Set path="/counter" value="1" />
             <Set path="/fetched_events_number" value="0" />
+            <Set path="/report_type_dict" value="{'report_type': ${/report_type}}" />
 
             <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
             <DoWhile condition="${/fetched_events_number} >= ${/events_per_poll}">
@@ -215,6 +228,12 @@
                         <PostEvent path="/debug_logs" source="${/identifier}" />
                         <Abort reason="${/get_${/report_type}_reports}" />
                     </If>
+                    <If condition="/get_${/report_type}_reports/status_code = 408">
+                        <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: Timeout error!" />
+                        <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} reports, reason: Timeout error!"/>
+                        <PostEvent path="/debug_logs" source="${/identifier}" />
+                        <Abort reason="${/get_${/report_type}_reports}" />
+                    </If>
 
                     <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}" />
                     <Set path="/debug_logs" value="ObserveIT DEBUG: ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}"/>
@@ -226,8 +245,6 @@
                 <Set path="/debug_logs" value="ObserveIT DEBUG: Done Fetching, processing data..."/>
                 <PostEvent path="/debug_logs" source="${/identifier}" />
 
-                <!-- Create a dictionary of the report type. -->
-                <Set path="/report_type_dict" value="{'report_type': ${/report_type}}" />
                 <!-- Initialize an empty list for events -->
                 <Set path="/report_events" value="[]" />
 
@@ -237,7 +254,7 @@
                     <Add path="/report_events" value="${/report_data}" />
                 </ForEach>
 
-                <Set path="/fetched_events_number" value="${count(/get_${/report_type}_reports/body/data)}" />
+                <Set path="/fetched_events_number" value="${count(/report_events)}" />
                 <Set path="/counter" value="${/counter + 1}" />
 
                 <Log type="INFO" message="${/fetched_events_number} events for were fetched for '${/report_type}'." />
