@@ -1,5 +1,6 @@
 <Workflow name="Qmasters ObserveIT" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
+		<Parameter name="identifier" label="Log Source Identifier" description="The log source identifier to post the events to." required="true" />
 		<Parameter name="hostname" label="Host Name" description="URL or IP for the instance." required="true" default="https://myobserveit.com" />
 		<Parameter name="client_id" label="Organization Key"
             description="Can be received through the Developer Portal by selecting Credentials and pressing the Create App button."
@@ -39,24 +40,24 @@
 		<!-- Handle errors. -->
         <If condition="/get_bearer_token/status_code != 200">
             <If condition="/get_bearer_token/status_code = 400">
-                <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: ${/get_bearer_token/body/_status/message}" />
+                <Abort reason="${/get_bearer_token}" />
             </If>
             <If condition="/get_bearer_token/status_code = 401">
-                <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: Authentication error!" />
+                <Abort reason="${/get_bearer_token}" />
             </If>
             <If condition="/get_bearer_token/status_code = 404">
-                <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: URL not found!" />
+                <Abort reason="${/get_bearer_token}" />
             </If>
             <If condition="/get_bearer_token/status_code = 500">
-                <Abort reason="${/get_bearer_token}" />
                 <Log type="ERROR" message="ObserveIT abort at get token, reason: Invalid client_id" />
+                <Abort reason="${/get_bearer_token}" />
             </If>
 
-            <Abort reason="${/get_bearer_token}" />
 			<Log type="ERROR" message="ObserveIT abort at get token, reason: ${/get_bearer_token}" />
+            <Abort reason="${/get_bearer_token}" />
         </If>
 
         <Log type="INFO" message="Bearer token received!" />
@@ -68,8 +69,8 @@
 
         <!-- Incase the user has set all poll parameters to false. -->
         <If condition="count(/report_types) = 0">
-            <Abort reason="${/report_types}" />
             <Log type="ERROR" message="ObserveIT abort reason: Please choose at least one report type to poll." />
+            <Abort reason="${/report_types}" />
         </If>
 
         <Log type="INFO" message="The following report types will be fetched: ${/report_types}." />
@@ -98,16 +99,16 @@
                 <!-- Handle errors. -->
                 <If condition="/get_${/report_type}_fields/status_code != 200">
                     <If condition="/get_${/report_type}_fields/status_code = 401">
-                        <Abort reason="${/get_${/report_type}_fields}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: Authentication error!" />
+                        <Abort reason="${/get_${/report_type}_fields}" />
                     </If>
                     <If condition="/get_${/report_type}_fields/status_code = 404">
-                        <Abort reason="${/get_${/report_type}_fields}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: URL not found!" />
+                        <Abort reason="${/get_${/report_type}_fields}" />
                     </If>
 
-                    <Abort reason="${/get_${/report_type}_fields}" />
                     <Log type="ERROR" message="ObserveIT abort at get ${/report_type} report fields, reason: ${/get_${/report_type}_fields}" />
+                    <Abort reason="${/get_${/report_type}_fields}" />
                 </If>
 
 
@@ -163,20 +164,20 @@
                 <!-- Handle errors. -->
                 <If condition="/get_${/report_type}_reports/status_code != 200">
                     <If condition="/get_${/report_type}_reports/status_code = 400">
-                        <Abort reason="${/get_${/report_type}_reports}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}/body/_status/message" />
+                        <Abort reason="${/get_${/report_type}_reports}" />
                     </If>
                     <If condition="/get_${/report_type}_reports/status_code = 401">
-                        <Abort reason="${/get_${/report_type}_reports}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: Authentication error!" />
+                        <Abort reason="${/get_${/report_type}_reports}" />
                     </If>
                     <If condition="/get_${/report_type}_reports/status_code = 404">
-                        <Abort reason="${/get_${/report_type}_reports}" />
                         <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: URL not found!" />
+                        <Abort reason="${/get_${/report_type}_reports}" />
                     </If>
 
-                    <Abort reason="${/get_${/report_type}_reports}" />
                     <Log type="ERROR" message="ObserveIT abort at get ${/report_type} reports, reason: ${/get_${/report_type}_reports}" />
+                    <Abort reason="${/get_${/report_type}_reports}" />
                 </If>
 
                 <Log type="INFO" message="Done Fetching, processing data..." />
@@ -201,7 +202,7 @@
                 <If condition="${/fetched_events_number} > 0">
                     <Log type="INFO" message="Posting fetched events..." />
 
-                    <PostEvents path="/report_events" source="${/hostname}" />
+                    <PostEvents path="/report_events" source="${/identifier}" />
 
                     <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
 

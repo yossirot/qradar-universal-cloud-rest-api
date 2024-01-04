@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
+	<!-- [identifier] [REQUIRED] - The log source identifier to post the events to. -->
+	<Value name="identifier" value=""/>
 	<!-- [hostname] [REQUIRED] - Instance URL or IP. -->
 	<Value name="hostname" value="https://myobserveit.com"/>
 	<!-- Can be received through the Developer Portal by selecting Credentials and pressing the Create App button. -->
