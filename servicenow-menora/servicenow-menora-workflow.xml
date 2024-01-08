@@ -4,6 +4,8 @@
 		<Parameter name="instance_name" label="Instance Name" description="." required="true" />
 		<Parameter name="username" label="Username" description="." required="true" />
 		<Parameter name="password" label="API Secret" description="." required="true" secret="true" />
+		<Parameter name="client_id" label="Client ID" description="." required="true" secret="true" />
+		<Parameter name="client_secret" label="Client secret" description="." required="true" secret="true" />
 
         <Parameter name="time_zone" label="Time Zone" description="The timezone to be used." default="UTC" />
         <Parameter name="events_per_fetch" label="Events Per Fetch" description="Max number of records to return per fetch. Note: a large fetch may cause timeout errors." default="100" />
@@ -29,6 +31,28 @@
         <Set path="/total_start_time" value="${time()}" />
         <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
 
+        <!-- Get new token from ServiceNow. -->
+        <CallEndpoint url="https://${/instance_name}.service-now.com/oauth_token.do" method="POST" savePath="/token_response" >
+            <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
+            <UrlEncodedFormRequestBody>
+                <Parameter name="grant_type" value="password" />
+                <Parameter name="client_id" value="${/client_id}" />
+                <Parameter name="client_secret" value="${/client_secret}" />
+                <Parameter name="username" value="${/username}" />
+                <Parameter name="password" value="${/password}" />
+            </UrlEncodedFormRequestBody>
+        </CallEndpoint>
+
+        <!-- Handle token generation error. -->
+        <If condition="/token_response/status_code != 200">
+            <Log type="ERROR" message="ServiceNow Menora - status code ${/token_response/status_code}, abort to generate new token. Reason: ${/token_response/body}" />
+            <!-- Break point. ??? -->
+            <Abort reason="${/token_response}" />
+        </If>
+
+        <!-- Set the bearer_token value for the API requests. ??? -->
+        <Set path="/bearer_token" value="${/token_response/body/access_token}" />
+
         <ForEach item="/table" items="/tables_to_fetch">
             <Set path="/individual_start_time" value="${time()}" />
 
@@ -45,7 +69,7 @@
                 <Log type="INFO" message="Fetching page number ${/counter} for '${/table}'..." />
 
                 <!-- Get the reports. -->
-                <CallEndpoint url="https${/instance_name}.service-now.com/api/now/table/${/table}" method="GET" savePath="/${/table}_response" >
+                <CallEndpoint url="https://${/instance_name}.service-now.com/api/now/table/${/table}" method="GET" savePath="/${/table}_response" >
                     <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
                     <BearerAuthentication token="${/bearer_token}" />
                     <QueryParameter name="sysparm_limit" value="${/events_per_fetch}" />
