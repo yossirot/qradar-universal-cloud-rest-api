@@ -178,7 +178,6 @@
         <Set path="/sleep_time_in_seconds" value="${/sleep_time / 1000}"/>
         <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
 
-
         <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
         <While condition="true">
             <Set path="/start_time" value="${time()}" />
