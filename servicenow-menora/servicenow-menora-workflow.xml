@@ -27,6 +27,8 @@
 
         <Log type="INFO" message="The following tables will be fetched: ${/tables_to_fetch}." />
 
+        <Set path="/map_table_to_time_key_name" value="{'upgrade_history_update_xml': 'upgr_sys_created_on','sys_audit_role': 'sys_created_on','isc_event': 'sys_created_on'}" />
+
         <!-- Initialize a timer to calculate the runtime for each report type and total runtime of the script. -->
         <Set path="/total_start_time" value="${time()}" />
         <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
@@ -43,6 +45,7 @@
             </UrlEncodedFormRequestBody>
         </CallEndpoint>
 
+
         <!-- Handle token generation error. -->
         <If condition="/token_response/status_code != 200">
             <Log type="ERROR" message="ServiceNow Menora - status code ${/token_response/status_code}, abort to generate new token. Reason: ${/token_response/body}" />
@@ -53,11 +56,16 @@
         <!-- Set the bearer_token value for the API requests. ??? -->
         <Set path="/bearer_token" value="${/token_response/body/access_token}" />
 
+        <Log type="INFO" message="ServiceNow-Menora Token: ${/bearer_token}." />
+
         <ForEach item="/table" items="/tables_to_fetch">
             <Set path="/individual_start_time" value="${time()}" />
 
+            <!-- <Log type="INFO" message="total_start_time= ${/total_start_time} and initial_fetch_period= ${initial_fetch_period}" /> -->
+
             <!-- Initialize the last_fetched filter for the first run. -->
-            <Initialize path="/last_fetched_${/table}" value="${/total_start_time - /initial_event_fetch_period * 86400 * 1000}" />
+            <Initialize path="/last_fetched_${/table}" value="${/total_start_time - /initial_fetch_period * 86400 * 1000}" />
+
             <Log type="INFO" message="'last_fetched' time for '${/table}' is: ${/last_fetched_${/table}}" />
 
             <Log type="INFO" message="Starting to fetch events through pagination for '${/table}'." />
@@ -82,7 +90,7 @@
                     <Abort reason="${/${/table}_response}" />
                 </If>
 
-                <Set path="/events" value="/get_${/table}/body/result" />
+                <Set path="/events" value="${/get_${/table}_response/body/result}" />
                 <Set path="/fetched_events_number" value="${count(/events)}" />
                 <Set path="/counter" value="${/counter + 1}" />
 
@@ -91,15 +99,16 @@
                 <!-- If there were any events, post them and update the last_fetched timer to the latest one. -->
                 <If condition="${/fetched_events_number} > 0">
                     <Log type="INFO" message="Posting fetched events..." />
-                    <PostEvents path="/events" source="${/identifier}" />
+                    <!-- <PostEvents path="/events" source="${/identifier}" /> -->
 
                     <!-- Update the last_fetched for next run. -->
-                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/events/sys_created_on)}" savePath="/last_fetched_${/table}" />
-                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/events/upgr_sys_updated_on)}" savePath="/last_fetched_${/table}" />
+                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/events/${/map_table_to_time_key_name/${/table}})}" savePath="/last_fetched_${/table}" />
+
                     <FormatDate pattern="${/time_format}" timeZone="${/time_zone}" time="${/last_fetched_${/table}}" savePath="/last_fetched_${/table}" />
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/last_fetched_${/table}}" savePath="/last_fetched_${/table}" />
 
                     <Log type="INFO" message="'last_fetched' time for '${/table}' updated to: ${/last_fetched_${/table}}" />
+
                 </If>
             </DoWhile>
 

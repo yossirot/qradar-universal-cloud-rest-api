@@ -20,6 +20,6 @@
 	<Value name="events_per_fetch" value="100"/>
 	<!-- [initial_fetch_period] [OPTIONAL] [DEFAULT=7] - Number of days in the past from which events will be initially retrieved. -->
 	<Value name="initial_fetch_period" value="7"/>
-	<!-- [tables_to_fetch] [OPTIONAL] [DEFAULT=upgrade_history_update_xml,sys_audit,isc_event] - Comma-separated list of tables to fetch. -->
-	<Value name="tables_to_fetch" value="upgrade_history_update_xml,sys_audit,isc_event"/>
+	<!-- [tables_to_fetch] [OPTIONAL] [DEFAULT=upgrade_history_update_xml,sys_audit_role,isc_event] - Comma-separated list of tables to fetch. -->
+	<Value name="tables_to_fetch" value="upgrade_history_update_xml,sys_audit_role,isc_event"/>
 </WorkflowParameterValues>
