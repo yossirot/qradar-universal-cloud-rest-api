@@ -196,15 +196,7 @@
 
                 <Log type="INFO" message="Done Fetching, processing data..." />
 
-                <!-- Initialize an empty list for events -->
-                <Set path="/report_events" value="[]" />
-
-                <!-- Merge the report type to each event and then post it. -->
-                <ForEach item="/report_data" items="/get_${/report_type}_reports/body/data">
-                    <Merge sourcePath="/report_type_dict" targetPath="/report_data" />
-                    <Add path="/report_events" value="${/report_data}" />
-                </ForEach>
-
+                <Set path="/report_events" value="${/get_${/report_type}_reports/body/data}" />
                 <Set path="/fetched_events_number" value="${count(/report_events)}" />
                 <Set path="/counter" value="${/counter + 1}" />
 
@@ -216,7 +208,8 @@
                     <PostEvents path="/report_events" source="${/identifier}" />
 
                     <!-- Update the risingValue for next run. -->
-                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${max(/report_events/risingValue)}" savePath="/last_risingValue_${/report_type}" />
+                    <Set path="/last_index" value="${/fetched_events_number - 1}"/>
+                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/report_events[${/last_index}]/risingValue}" savePath="/last_risingValue_${/report_type}" />
                     <FormatDate pattern="${/time_format}" timeZone="${/time_zone}" time="${/last_risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/risingValue_${/report_type}}" savePath="/risingValue_${/report_type}" />
 
