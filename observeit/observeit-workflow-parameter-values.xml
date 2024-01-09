@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
 	<!-- [identifier] [REQUIRED] - The log source identifier to post the events to. -->
-	<Value name="identifier" value="alert_v0"/>
+	<Value name="identifier" value=""/>
 	<!-- [hostname] [REQUIRED] - Instance URL or IP. -->
 	<Value name="hostname" value="https://myObserveIT.com"/>
 	<!-- Can be received through the Developer Portal by selecting Credentials and pressing the Create App button. -->
@@ -21,4 +21,6 @@
 	<Value name="report_type" value=""/>
 	<!-- [piis_to_exclude] [OPTIONAL] [DEFAULT=loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName"] - Comma-separated list of Personal Identifiable Information (PII) to exclude. -->
 	<Value name="piis_to_exclude" value=""/>
+	<!-- [sleep_time_in_seconds] [OPTIONAL] [DEFAULT=20] - The downtime for the connector after it is in sync with the server (Min: 0). -->
+	<Value name="sleep_time_in_seconds" value="20"/>
 </WorkflowParameterValues>

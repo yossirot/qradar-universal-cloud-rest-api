@@ -10,15 +10,26 @@
         <Parameter name="initial_event_fetch_period" label="Initial Event Fetch Period in Days" description="Number of days in the past from which events will be initially retrieved." default="7" />
         <Parameter name="report_type" label="Report Type" required="true" description="The report type to poll. One of: `alert_v0`,`audit_configuration_v0`,`audit_logins_v0`,`audit_saved_sessions_v0`,`audit_session_playback_v0`,`system_events_v0`,`user_command_activity_with_output_v0`,`user_command_output_stream_v0`,`user_dba_activity_v0`,`user_file_activity_v0`,`user_interface_activity_v0`,`user_messaging_actions_activity_v0`,`user_session_v0`." />
         <Parameter name="piis_to_exclude" label="Personal Identifiable Information to Exclude" description="Comma-separated list of Personal Identifiable Information (PII) to exclude." default="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName" />
+        <Parameter name="sleep_time_in_seconds" label="Sleep Time in Seconds" description="The downtime for the connector after it is in sync with the server (Min: 0)." default="20" />
     </Parameters>
 
     <Actions>
 		<!-- Clear the log source status before a new workflow run starts. -->
         <ClearStatus />
-        <Set path="/log_message" value="[ObserveIT]: Authenticating, fetching bearer token..."/>
+        <Set path="/fetch_counter" value="1" />
+        <Set path="/events_count" value="0" />
+        <Set path="/sleep_time" value="${/sleep_time_in_seconds * 1000}"/>
+        <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
+
+        <!-- Initialize the risingValue filter for the first run. -->
+        <Initialize path="/bookmark" value="${time() - /initial_event_fetch_period * 86400 * 1000}" />
+        <Set path="/log_message" value="[ObserveIT]: 'risingValue' time for '${/report_type}' to be fetched is: ${/bookmark}" />
         <PostEvent path="/log_message" source="${/identifier}" />
         <Log type="INFO" message="${/log_message}" />
 
+        <Set path="/log_message" value="[ObserveIT]: Authenticating, fetching bearer token..."/>
+        <PostEvent path="/log_message" source="${/identifier}" />
+        <Log type="INFO" message="${/log_message}" />
 
 		<!-- Get Bearer Token. -->
 		<CallEndpoint url="${/hostname}/v2/apis/auth/oauth/token" method="POST" savePath="/response" >
@@ -73,39 +84,19 @@
         <Set path="/log_message" value="[ObserveIT]: Bearer token received!" />
         <PostEvent path="/log_message" source="${/identifier}" />
         <Log type="INFO" message="${/log_message}" />
-
         <!-- Save the bearer token. -->
 		<Set path="/bearer_token" value="${/response/body/access_token}" />
 
-        <!-- Incase the user has set all poll parameters to false. -->
-        <If condition="count(/report_type) = 0">
-            <Set path="/log_message" value="[ObserveIT]: Abort reason: Please choose a report type to poll." />
-            <PostEvent path="/log_message" source="${/identifier}" />
-            <Log type="ERROR" message="${/log_message}" />
-            <Abort reason="${/report_type}" />
-        </If>
-
-        <Set path="/log_message" value="[ObserveIT]: The following report type will be fetched: ${/report_type}." />
-        <PostEvent path="/log_message" source="${/identifier}" />
-        <Log type="INFO" message="${/log_message}" />
-
-
-        <!-- Initialize the risingValue filter for the first run. -->
-        <Initialize path="/bookmark" value="${time() - /initial_event_fetch_period * 86400 * 1000}" />
-        <Set path="/log_message" value="[ObserveIT]: 'risingValue' time for '${/report_type}' to be fetched is: ${/bookmark}" />
-        <PostEvent path="/log_message" source="${/identifier}" />
-        <Log type="INFO" message="${/log_message}" />
-
+        <!-- Handle PII. -->
         <Split value="${/piis_to_exclude}" delimiter="," savePath="/piis_to_exclude" />
 
-        <!-- Handle PII. -->
         <If condition="count(/piis_to_exclude) > 0">
             <!-- Create a list of PIIs to exclude. -->
             <Set path="/log_message" value="[ObserveIT]: Fetching fields for the report type '${/report_type}'..." />
             <PostEvent path="/log_message" source="${/identifier}" />
             <Log type="INFO" message="${/log_message}" />
 
-            <!-- Get a report type fields. -->
+            <!-- Get the report type's fields. -->
             <CallEndpoint url="${/hostname}/v2/apis/report;realm=ObserveIT/reports/${/report_type}" method="GET" savePath="/response" >
                 <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
                 <BearerAuthentication token="${/bearer_token}" />
@@ -138,11 +129,10 @@
                 <Abort reason="${/response}" />
             </If>
 
-
             <!-- Create an empty string that will hold the fields to fetch. -->
             <Set path="/fields" value="" />
 
-            <!-- Create a list with all fields except for PII. -->
+            <!-- Iterate over all the fields within a report type and exclude those that are a PII from `fields`. -->
             <ForEach item="/column" items="/response/body/data[0]/columns">
                 <Set path="/is_pii" value="false" />
 
@@ -153,7 +143,7 @@
                     </If>
                 </ForEach>
 
-                <!-- If the current field isn't a PII, save it in the include list. -->
+                <!-- If the current field isn't a PII, append it to the string. -->
                 <If condition="${/is_pii} = false">
                     <If condition="${count(/fields) = 0}">
                         <Set path="/fields" value="${/column/name}" />
@@ -168,15 +158,6 @@
         <Set path="/log_message" value="[ObserveIT]: The following fields will be fetched for the report type '${/report_type}': ${/fields}." />
         <PostEvent path="/log_message" source="${/identifier}" />
         <Log type="INFO" message="${/log_message}" />
-        <Set path="/log_message" value="[ObserveIT]: Starting to fetch events through pagination for '${/report_type}'." />
-        <PostEvent path="/log_message" source="${/identifier}" />
-        <Log type="INFO" message="${/log_message}" />
-
-        <Set path="/fetch_counter" value="1" />
-        <Set path="/events_count" value="0" />
-        <Set path="/sleep_time" value="20000"/>
-        <Set path="/sleep_time_in_seconds" value="${/sleep_time / 1000}"/>
-        <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
 
         <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
         <While condition="true">
