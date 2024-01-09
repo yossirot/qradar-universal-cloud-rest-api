@@ -3,16 +3,16 @@
 	<!-- [identifier] [REQUIRED] - The log source identifier to post the events to. -->
 	<Value name="identifier" value="SNM-Test"/>
 	<!-- [instance_name] [REQUIRED] - . -->
-	<Value name="instance_name" value="menoradev"/>
+	<Value name="instance_name" value=""/>
 	<!-- . -->
 	<!-- [client_id] [REQUIRED] -->
-	<Value name="client_id" value="e9f3695227af311005a6384db141ff66"/>
+	<Value name="client_id" value=""/>
 	<!-- [client_secret] [REQUIRED] -->
-	<Value name="client_secret" value="h@B|iBFk^q"/>
+	<Value name="client_secret" value=""/>
 	<!-- [username] [REQUIRED] -->
-	<Value name="username" value="SNOW2QRADARPRDUSR@menoramivt.net"/>
+	<Value name="username" value=""/>
 	<!-- [password] [REQUIRED] -->
-	<Value name="password" value="jTVjAiKnOaRhaYGeJKvbOb$9"/>
+	<Value name="password" value=""/>
 	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->
 	<Value name="time_zone" value="UTC"/>
 	<!-- [events_per_fetch] [OPTIONAL] [DEFAULT=100] - Max number of records to return per fetch. Note: a large fetch may cause timeout errors. -->
