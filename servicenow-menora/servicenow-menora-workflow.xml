@@ -27,11 +27,11 @@
 
         <Log type="INFO" message="The following tables will be fetched: ${/tables_to_fetch}." />
 
-        <Set path="/map_table_to_time_key_name" value="{'upgrade_history_update_xml': 'upgr_sys_created_on','sys_audit_role': 'sys_created_on','isc_event': 'sys_created_on'}" />
+        <Set path="/map_table_to_time_key_name" value="{'upgrade_history_update_xml': 'upd_sys_updated_on','sys_audit_role': 'sys_updated_on','isc_event': 'sys_updated_on'}" />
 
         <!-- Initialize a timer to calculate the runtime for each report type and total runtime of the script. -->
         <Set path="/total_start_time" value="${time()}" />
-        <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss[.SSS]'Z'" />
+        <Initialize path="/time_format" value="yyyy-MM-dd HH:mm:ss" />
 
         <!-- Get new token from ServiceNow. -->
         <CallEndpoint url="https://${/instance_name}.service-now.com/oauth_token.do" method="POST" savePath="/token_response" >
@@ -44,7 +44,6 @@
                 <Parameter name="password" value="${/password}" />
             </UrlEncodedFormRequestBody>
         </CallEndpoint>
-
 
         <!-- Handle token generation error. -->
         <If condition="/token_response/status_code != 200">
@@ -61,8 +60,6 @@
         <ForEach item="/table" items="/tables_to_fetch">
             <Set path="/individual_start_time" value="${time()}" />
 
-            <!-- <Log type="INFO" message="total_start_time= ${/total_start_time} and initial_fetch_period= ${initial_fetch_period}" /> -->
-
             <!-- Initialize the last_fetched filter for the first run. -->
             <Initialize path="/last_fetched_${/table}" value="${/total_start_time - /initial_fetch_period * 86400 * 1000}" />
 
@@ -70,7 +67,7 @@
 
             <Log type="INFO" message="Starting to fetch events through pagination for '${/table}'." />
             <Set path="/counter" value="1" />
-            <Set path="/fetched_events_number" value="0" />
+            <Set path="/fetched_events_number" value="100" />
 
             <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
             <DoWhile condition="${/fetched_events_number} >= ${/events_per_fetch}">
@@ -90,7 +87,9 @@
                     <Abort reason="${/${/table}_response}" />
                 </If>
 
-                <Set path="/events" value="${/get_${/table}_response/body/result}" />
+                <!-- <Log type="INFO" message="Fetching from '${/table}' : ${/${/table}_response/body/result}" /> -->
+
+                <Set path="/events" value="${/${/table}_response/body/result}" />
                 <Set path="/fetched_events_number" value="${count(/events)}" />
                 <Set path="/counter" value="${/counter + 1}" />
 
