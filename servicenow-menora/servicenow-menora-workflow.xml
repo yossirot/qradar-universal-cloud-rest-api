@@ -3,7 +3,7 @@
         <Parameter name="identifier" label="Log Source Identifier" description="The log source identifier to post the events to." required="true" />
 		<Parameter name="instance_name" label="Instance Name" description="ServiceNow instance name." required="true" />
 		<Parameter name="username" label="Username" description="ServiceNow user name." required="true" />
-		<Parameter name="password" label="API Secret" description="ServiceNow user's password." required="true" secret="true" />
+		<Parameter name="password" label="Password" description="ServiceNow user's password." required="true" secret="true" />
 		<Parameter name="client_id" label="Client ID" description="ServiceNow client ID." required="true" secret="true" />
 		<Parameter name="client_secret" label="Client secret" description="ServiceNow client secret." required="true" secret="true" />
         <Parameter name="time_zone" label="Time Zone" description="The timezone to be used." default="UTC" />
