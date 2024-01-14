@@ -26,9 +26,9 @@
 
 5. Now you can see your Client ID and Client Secret.
 
-![Sample Image](1.png)
-![Sample Image](2.png)
-![Sample Image](3.png)
+![Sample Image](SN1.png)
+![Sample Image](SN2.png)
+![Sample Image](SN3.png)
 
 
 # QRadar Log Source Configuration
@@ -59,6 +59,17 @@ If you want to ingest data from an endpoint using Universal Rest API Protocol, c
 10. To fix any errors, click Configure Protocol Parameters. Configure the parameters and click Test Protocol Parameters.
 
 11. Click Finish
+
+![Sample Image](q1.png)
+![Sample Image](q2.png)
+![Sample Image](q3.png)
+![Sample Image](q4.png)
+![Sample Image](q5.png)
+![Sample Image](q6.png)
+![Sample Image](q7.png)
+![Sample Image](q8.png)
+![Sample Image](q9.png)
+
 
 - The log source identifier must be identical to the inserted `instance_name`.
 - Copy the Workflow XML into the Workflow field.
