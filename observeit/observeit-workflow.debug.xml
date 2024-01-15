@@ -175,16 +175,18 @@
                 <QueryParameter name="since" value="${/bookmark}" />
             </CallEndpoint>
 
+            <Set path="/log_message" value="[ObserveIT]: Done fetch request, got status code: ${/response/status_code}." />
+            <PostEvent path="/log_message" source="${/identifier}" />
+            <Log type="INFO" message="${/log_message}" />
+
             <If condition="/response/status_code = 200">
                 <!-- Handle a succesful response. -->
-                <Set path="/events" value="${/response/body/data}" />
-                <Set path="/events_count" value="${count(/events)}" />
+                <Set path="/events_count" value="${count(/response/body/data)}" />
                 <Set path="/fetch_counter" value="${/fetch_counter + 1}" />
 
                 <Set path="/log_message" value="[ObserveIT]: ${/events_count} events for were fetched for '${/report_type}'." />
                 <PostEvent path="/log_message" source="${/identifier}" />
                 <Log type="INFO" message="${/log_message}" />
-
 
                 <!-- If there were any events, post them and update the risingValue timer to the latest one. -->
                 <If condition="${/events_count} > 0">
@@ -192,11 +194,11 @@
                     <PostEvent path="/log_message" source="${/identifier}" />
                     <Log type="INFO" message="${/log_message}" />
 
-                    <PostEvents path="/events" source="${/identifier}" />
+                    <PostEvents path="/response/body/data" source="${/identifier}" />
 
                     <!-- Update the risingValue for next run. -->
                     <Set path="/last_index" value="${/events_count - 1}"/>
-                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/events[${/last_index}]/risingValue}" savePath="/last_risingValue" />
+                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/response/body/data[${/last_index}]/risingValue}" savePath="/last_risingValue" />
                     <FormatDate pattern="${/time_format}" timeZone="${/time_zone}" time="${/last_risingValue}" savePath="/bookmark" />
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/bookmark}" savePath="/bookmark" />
 
