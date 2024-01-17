@@ -3,19 +3,18 @@
 	<!-- [identifier] [REQUIRED] - The log source identifier to post the events to. -->
 	<Value name="identifier" value="sys_audit_role"/>
 	<!-- [instance_name] [REQUIRED] - . -->
-	<Value name="instance_name" value="menoradev"/>
-	<!-- . -->
+	<Value name="instance_name" value="xxx"/>
 	<!-- [client_id] [REQUIRED] -->
-	<Value name="client_id" value="e9f3695227af311005a6384db141ff66"/>
+	<Value name="client_id" value="xxx"/>
 	<!-- [client_secret] [REQUIRED] -->
 	<Value name="client_secret" value="h@B|iBFk^q"/>
 	<!-- [username] [REQUIRED] -->
-	<Value name="username" value="SNOW2QRADARPRDUSR@menoramivt.net"/>
+	<Value name="username" value="xxx@menoramivt.net"/>
 	<!-- [password] [REQUIRED] -->
-	<Value name="password" value="jTVjAiKnOaRhaYGeJKvbOb$9"/>
+	<Value name="password" value="xxx"/>
 	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->
 	<Value name="time_zone" value="UTC"/>
-	<!-- [events_per_fetch] [OPTIONAL] [DEFAULT=100] - Max number of records to return per fetch. Note: a large fetch may cause timeout errors. -->
+	<!-- [events_per_fetch] [OPTIONAL] [DEFAULT=1000] - Max number of records to return per fetch. Note: a large fetch may cause timeout errors. -->
 	<Value name="events_per_fetch" value="1000"/>
 	<!-- [initial_fetch_period] [OPTIONAL] [DEFAULT=7] - Number of days in the past from which events will be initially retrieved. -->
 	<Value name="initial_fetch_period" value="7"/>
