@@ -7,7 +7,7 @@
 	<!-- [client_id] [REQUIRED] -->
 	<Value name="client_id" value="xxx"/>
 	<!-- [client_secret] [REQUIRED] -->
-	<Value name="client_secret" value="h@B|iBFk^q"/>
+	<Value name="client_secret" value="xxx"/>
 	<!-- [username] [REQUIRED] -->
 	<Value name="username" value="xxx@menoramivt.net"/>
 	<!-- [password] [REQUIRED] -->
