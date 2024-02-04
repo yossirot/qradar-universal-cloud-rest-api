@@ -1,11 +1,11 @@
-# Menora Parameters Configuration
+# Boomi Parameters Configuration
 | Parameter                        | Name                                    | Required (True/False) | Type            | Description                                                                                           | Default Value |
 |----------------------------------|-----------------------------------------|-----------------------|-----------------|-------------------------------------------------------------------------------------------------------|---------------|
 | `identifier`                     | Log Source Identifier                   | True                  | String          | The log source identifier to post the events to.                                                     |               |
 | `account_id`                       | Account ID                               | True                  | String          | Boomi account ID.                                                                                  |  |
 | `username`                      | Username                        | True                  | Authentication  | Boomi user name. |               |
 | `token`                  | Token                              | True                  | Authentication  | Boomi token. |               |
-| `time_zone`                      | Time Zone                               | False                 | String          | The timezone used in Menora.                                                                      | `UTC`         |
+| `time_zone`                      | Time Zone                               | False                 | String          | The timezone used in Boomi.                                                                      | `UTC`         |
 | `start_fetch_time`                | Initial Event Start Time Date                         | True                 | String          | The date time from which events will be initially retrieved.               |        |
 | `sleep_time_in_seconds`                | Sleep Time in Seconds | False                 | Number          | The downtime for the connector after it is in sync with the server (Min: 0).                          | `20` |
 
