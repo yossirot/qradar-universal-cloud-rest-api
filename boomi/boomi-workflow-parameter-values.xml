@@ -3,11 +3,11 @@
 	<!-- [identifier] [REQUIRED] - The log source identifier to post the events to. -->
 	<Value name="identifier" value="Boomi"/>
 	<!-- [instance_name] [REQUIRED] - . -->
-	<Value name="account_id" value="neptunetechnologygroupcan-65WNQP"/>
+	<Value name="account_id" value=""/>
 	<!-- [username] [REQUIRED] -->
-	<Value name="username" value="BOOMI_TOKEN.mwilson@neptunetg.com"/>
+	<Value name="username" value=""/>
 	<!-- [token] [REQUIRED] -->
-	<Value name="token" value="ad33ad72-83f1-46ed-bba1-201567cf08d1"/>
+	<Value name="token" value=""/>
 	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->
 	<Value name="time_zone" value="UTC"/>
 	<!-- [start_fetch_time] [REQUIRED] - The date time from which events will be initially retrieved. -->
