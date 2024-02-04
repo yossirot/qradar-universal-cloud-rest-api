@@ -1,4 +1,4 @@
-<Workflow name="Qmasters ServiceNow Menora" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
+<Workflow name="Qmasters ServiceNow" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
         <Parameter name="identifier" label="Log Source Identifier" description="The log source identifier to post the events to." required="true" />
 		<Parameter name="instance_name" label="Instance Name" description="ServiceNow instance name." required="true" />
@@ -23,9 +23,9 @@
 
         <!-- Initialize the last updated time filter for the first run. -->
         <Initialize path="/bookmark" value="${time() - /initial_fetch_period * 86400 * 1000}" />
-        <Log type="INFO" message="[ServiceNow Menora]: The '${/pagination_time_field}' time for '${/table_to_fetch}' to be fetched is: ${/bookmark}" />
+        <Log type="INFO" message="[ServiceNow]: The '${/pagination_time_field}' time for '${/table_to_fetch}' to be fetched is: ${/bookmark}" />
 
-        <Log type="INFO" message="[ServiceNow Menora]: Authenticating, fetching bearer token..." />
+        <Log type="INFO" message="[ServiceNow]: Authenticating, fetching bearer token..." />
 
 		<!-- Get new token from ServiceNow. -->
         <CallEndpoint url="https://${/instance_name}.service-now.com/oauth_token.do" method="POST" savePath="/response" >
@@ -41,18 +41,18 @@
 
         <!-- Handle token generation error. -->
         <If condition="/response/status_code != 200">
-            <Log type="ERROR" message="[ServiceNow Menora]: status code ${/response/status_code}, abort to generate new token. Reason: ${/response/body}" />
+            <Log type="ERROR" message="[ServiceNow]: status code ${/response/status_code}, abort to generate new token. Reason: ${/response/body}" />
             <Abort reason="${/response}" />
         </If>
 
-        <Log type="INFO" message="[ServiceNow Menora]: Bearer token received!" />
+        <Log type="INFO" message="[ServiceNow]: Bearer token received!" />
         <!-- Save the bearer token. -->
 		<Set path="/bearer_token" value="${/response/body/access_token}" />
 
         <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
         <While condition="true">
             <Set path="/start_time" value="${time()}" />
-            <Log type="INFO" message="[ServiceNow Menora]: Running fetch number ${/fetch_counter} for '${/table_to_fetch}'..." />
+            <Log type="INFO" message="[ServiceNow]: Running fetch number ${/fetch_counter} for '${/table_to_fetch}'..." />
 
             <!-- Get the reports. -->
             <CallEndpoint url="https://${/instance_name}.service-now.com/api/now/table/${/table_to_fetch}" method="GET" savePath="/response" >
@@ -68,11 +68,11 @@
                 <Set path="/events_count" value="${count(/events)}" />
                 <Set path="/fetch_counter" value="${/fetch_counter + 1}" />
 
-                <Log type="INFO" message="[ServiceNow Menora]: ${/events_count} events for were fetched for '${/table_to_fetch}'." />
+                <Log type="INFO" message="[ServiceNow]: ${/events_count} events for were fetched for '${/table_to_fetch}'." />
 
                 <!-- If there were any events, post them and update the last updated time to the latest one. -->
                 <If condition="${/events_count} > 0">
-                    <Log type="INFO" message="[ServiceNow Menora]: Posting fetched events..." />
+                    <Log type="INFO" message="[ServiceNow]: Posting fetched events..." />
                     <PostEvents path="/events" source="${/identifier}" />
                     <!-- Update the last updated time for next run. -->
                     <Set path="/last_index" value="${/events_count - 1}"/>
@@ -81,20 +81,20 @@
                     <FormatDate pattern="${/time_format}" timeZone="${/time_zone}" time="${/last_bookmark}" savePath="/bookmark" />
                     <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/bookmark}" savePath="/bookmark" />
 
-                    <Log type="INFO" message="[ServiceNow Menora]: '${/pagination_time_field}' time for '${/table_to_fetch}' updated to: ${/bookmark}" />
+                    <Log type="INFO" message="[ServiceNow]: '${/pagination_time_field}' time for '${/table_to_fetch}' updated to: ${/bookmark}" />
                 </If>
 
-                <Log type="INFO" message="[ServiceNow Menora]: Done fetch period, total time in milliseconds is: ${time() - /start_time}" />
+                <Log type="INFO" message="[ServiceNow]: Done fetch period, total time in milliseconds is: ${time() - /start_time}" />
 
                 <If condition="${/events_per_fetch} > ${/events_count}">
-                    <Log type="INFO" message="[ServiceNow Menora]: Connecter is in sync with ServiceNow Menora server, reseting fetch counter and going to sleep for ${/sleep_time_in_seconds} seconds..." />
+                    <Log type="INFO" message="[ServiceNow]: Connecter is in sync with ServiceNow server, reseting fetch counter and going to sleep for ${/sleep_time_in_seconds} seconds..." />
                     <Set path="/fetch_counter" value="1" />
                     <Sleep duration="${/sleep_time}" />
                 </If>
             </If>
             <ElseIf condition="/response/status_code = 401">
                 <!-- If the bearer token has expired fetch a new one.  -->
-                <Log type="INFO" message="[ServiceNow Menora]: Bearer token expired, fetching new token..." />
+                <Log type="INFO" message="[ServiceNow]: Bearer token expired, fetching new token..." />
 
                 <!-- Get new token from ServiceNow. -->
                 <CallEndpoint url="https://${/instance_name}.service-now.com/oauth_token.do" method="POST" savePath="/response" >
@@ -110,16 +110,16 @@
 
                 <!-- Handle token generation error. -->
                 <If condition="/response/status_code != 200">
-                    <Log type="ERROR" message="ServiceNow Menora - status code ${/response/status_code}, abort to generate new token. Reason: ${/response/body}" />
+                    <Log type="ERROR" message="ServiceNow - status code ${/response/status_code}, abort to generate new token. Reason: ${/response/body}" />
                     <Abort reason="${/response}" />
                 </If>
 
-                <Log type="INFO" message="[ServiceNow Menora]: Bearer token received!" />
+                <Log type="INFO" message="[ServiceNow]: Bearer token received!" />
                 <!-- Save the bearer token. -->
                 <Set path="/bearer_token" value="${/response/body/access_token}" />
             </ElseIf>
             <Else>
-                <Log type="ERROR" message="ServiceNow Menora - status code ${/response/status_code}, abort at get ${/table_to_fetch} reports. Reason: ${/response/body}" />
+                <Log type="ERROR" message="ServiceNow - status code ${/response/status_code}, abort at get ${/table_to_fetch} reports. Reason: ${/response/body}" />
                 <Abort reason="${/response}" />
             </Else>
         </While>

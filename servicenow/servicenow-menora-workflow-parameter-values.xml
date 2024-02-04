@@ -9,7 +9,7 @@
 	<!-- [client_secret] [REQUIRED] -->
 	<Value name="client_secret" value="xxx"/>
 	<!-- [username] [REQUIRED] -->
-	<Value name="username" value="xxx@menoramivt.net"/>
+	<Value name="username" value="xxx@xxxx.com"/>
 	<!-- [password] [REQUIRED] -->
 	<Value name="password" value="xxx"/>
 	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->

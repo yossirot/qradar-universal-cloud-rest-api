@@ -1,4 +1,4 @@
-# Menora Parameters Configuration
+# ServiceNow Parameters Configuration
 | Parameter                        | Name                                    | Required (True/False) | Type            | Description                                                                                           | Default Value |
 |----------------------------------|-----------------------------------------|-----------------------|-----------------|-------------------------------------------------------------------------------------------------------|---------------|
 | `identifier`                     | Log Source Identifier                   | True                  | String          | The log source identifier to post the events to.                                                     |               |
@@ -7,7 +7,7 @@
 | `client_secret`                  | Client Secret                              | True                  | Authentication  | ServiceNow client secret. |               |
 | `username`                      | Username                        | True                  | Authentication  | ServiceNow user name. |               |
 | `password`                  | Password                              | True                  | Authentication  | ServiceNow password. |               |
-| `time_zone`                      | Time Zone                               | False                 | String          | The timezone used in Menora.                                                                      | `UTC`         |
+| `time_zone`                      | Time Zone                               | False                 | String          | The timezone used in ServiceNow.                                                                      | `UTC`         |
 | `events_per_fetch`                | Events Per Fetch                         | False                 | Number          | Max number of records to return per fetch. Note: a large fetch may cause timeout errors.               | `100`         |
 | `initial_fetch_period`     | Initial Event Fetch Period in Days      | False                 | Number          | Number of days in the past from which events will be initially retrieved.                            | `7`           |
 | `table_to_fetch`                   | Table to Fetch                            | False                 | String          | Table name to fetch events from.                                                        |  |
@@ -40,13 +40,13 @@ If you want to ingest data from an endpoint using Universal Rest API Protocol, c
 
 3. To create DSM, click the DSM editor app icon.
 
-4. Then click Create New and name it "ServiceNow-Menora API".
+4. Then click Create New and name it "ServiceNow API".
 
 4. To create the log source, click the QRadar Log Source Management app icon.
 
 5. Click New Log Source > Single Log Source.
 
-6. On the Select a Log Source Type page, Select a Log Source Type ServiceNow-Menora API and click Select Protocol Type (Universal Rest API).
+6. On the Select a Log Source Type page, Select a Log Source Type ServiceNow API and click Select Protocol Type (Universal Rest API).
 
 7. On the Select a Protocol Type page, select a protocol and click Configure Log Source Parameters.
 
