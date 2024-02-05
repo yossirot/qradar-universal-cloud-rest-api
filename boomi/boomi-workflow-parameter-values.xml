@@ -2,11 +2,11 @@
 <WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V2">
 	<!-- [identifier] [REQUIRED] - The log source identifier to post the events to. -->
 	<Value name="identifier" value="Boomi"/>
-	<!-- [instance_name] [REQUIRED] - . -->
+	<!-- [account_id] [REQUIRED] - Boomi account ID.-->
 	<Value name="account_id" value=""/>
-	<!-- [username] [REQUIRED] -->
+	<!-- [username] [REQUIRED] - Boomi user name. -->
 	<Value name="username" value=""/>
-	<!-- [token] [REQUIRED] -->
+	<!-- [token] [REQUIRED] - Boomi token. -->
 	<Value name="token" value=""/>
 	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->
 	<Value name="time_zone" value="UTC"/>
