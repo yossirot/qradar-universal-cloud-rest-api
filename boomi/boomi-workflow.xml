@@ -5,7 +5,7 @@
         <Parameter name="username" label="Username" description="Boomi user name." required="true" />
         <Parameter name="token" label="Token" description="Boomi user's Token." required="true" secret="true" />
         <Parameter name="time_zone" label="Time Zone" description="The timezone to be used." default="UTC" />
-        <Parameter name="start_fetch_time" label="Initial Event Start Time Date" description="Date time from which events will be initially retrieved." />
+        <Parameter name="start_fetch_time" label="Initial Event Start Time Date" description="Date time from which events will be initially retrieved." required="false"/>
         <Parameter name="sleep_time_in_seconds" label="Sleep Time in Seconds" description="The downtime for the connector after it is in sync with the server (Min: 0)." default="120" />
     </Parameters>
 
@@ -15,15 +15,23 @@
 
         <Set path="/fetch_counter" value="1" />
         <Set path="/events_count" value="0" />
+        <Set path="/all_events_date" value="[]"/>
         <Set path="/sleep_time" value="${/sleep_time_in_seconds * 1000}"/>
-
         <Initialize path="/time_format" value="yyyy-MM-dd'T'HH:mm:ss'Z'" />
-        <Initialize path="/bookmark" value="${/start_fetch_time}" />
+
+        <!-- Initialize the risingValue filter for the first run. -->
+        <If condition="count(/start_fetch_time) > 0" >
+            <Initialize path="/bookmark" value="${/start_fetch_time}"/>
+        </If>
+        <Else>
+            <Initialize path="/bookmark" value="${time() - 3600000}" />
+            <FormatDate  pattern="${/time_format}" timeZone="${/time_zone}" time="${/bookmark}" savePath="/bookmark" />
+        </Else>
 
         <Log type="INFO" message="[Boomi]: Start fetching events..." />
         <Log type="INFO" message="[Boomi]: Account ID: ${/account_id}. Username: ${/username}. Start time: ${/bookmark}." />
 
-        <!-- Initialize the last updated time filter for the first run. -->
+        <!-- Set the last updated time filter for the first run. -->
         <Set path="/current_time" value="${time()}" />
 
         <FormatDate  pattern="${/time_format}" timeZone="${/time_zone}" time="${/current_time}" savePath="/last_current_time" />
@@ -59,6 +67,7 @@
                 <XPathQuery xmlPath="/response/body" xPathQuery="/*['QueryResult'=local-name()]/*['result'=local-name()]" savePath="/events" />
                 <XPathQuery xmlPath="/response/body" xPathQuery="/*['QueryResult'=local-name()]/*['result'=local-name()]/@date" savePath="/events_date" />
                 <XPathQuery xmlPath="/response/body" xPathQuery="/*['QueryResult'=local-name()]/@numberOfResults" singleton="true" savePath="/total_exist_events" />
+                <XPathQuery xmlPath="/response/body" xPathQuery="/*['QueryResult'=local-name()]/*['queryToken'=local-name()]/text()" singleton="true" savePath="/query_token" />
 
                 <Set path="/events_count" value="${count(/events)}" />
                 <Set path="/total_fetched_events" value="${count(/events)}" />
@@ -68,15 +77,13 @@
                 <Log type="INFO" message="[Boomi]: Total fetched events: ${/total_fetched_events}." />
                 <Log type="INFO" message="[Boomi]: More events to fetch: ${/total_exist_events - /total_fetched_events}." />
 
-                <XPathQuery xmlPath="/response/body" xPathQuery="/*['QueryResult'=local-name()]/*['queryToken'=local-name()]/text()" singleton="true" savePath="/query_token" />
-
                 <Set path="/fetch_counter" value="${/fetch_counter + 1}" />
                 <Log type="INFO" message="[Boomi]: Recived token for more events: ${not empty(/query_token)}" />
-                <!-- If there were any events, post them and update the last updated time to the latest one. -->
+
+                <!-- Post events if any. -->
                 <If condition="${/events_count} > 0">
-                    <Log type="INFO" message="[Boomi]: Posting fetched events..." />
+                    <Log type="INFO" message="[Boomi]: Posting ${/events_count} fetched events..." />
                     <PostEvents path="/events" source="${/identifier}" />
-                    <Set path="/bookmark" value="${max(/events_date)}" />
                 </If>
 
                 <!-- If there more events to fetch. -->
@@ -105,6 +112,8 @@
                         <Log type="INFO" message="[Boomi]: Total fetched events: ${/total_fetched_events}." />
                         <Log type="INFO" message="[Boomi]: More events to fetch: ${/total_exist_events - /total_fetched_events}." />
 
+                        <Merge targetPath="/all_events_date" sourcePath="/events_date" />
+
                         <Set path="/fetch_counter" value="${/fetch_counter + 1}" />
 
                         <Log type="INFO" message="[Boomi]: Posting ${/events_count} fetched events..." />
@@ -120,11 +129,18 @@
                 </While>
                 <Log type="INFO" message="[Boomi]: Done fetch period, total time in milliseconds is: ${time() - /current_time}" />
 
-                <If condition="${/total_exist_events} = ${/total_fetched_events}">
-                    <If condition="max(/events_date) > /bookmark">
-                        <Set path="/bookmark" value="${max(/events_date)}" />
-                    </If>
+                <If condition="${/events_count} > 0">
+                    <Merge targetPath="/all_events_date" sourcePath="/events_date" />
 
+                    <Set path="/bookmark" value="${max(/all_events_date)}" />
+                    <Log type="INFO" message="[Boomi]: Max events date ${/bookmark}." />
+
+                    <ParseDate pattern="${/time_format}" timeZone="${/time_zone}" date="${/bookmark}" savePath="/bookmark" />
+                    <Set path="/bookmark" value="${/bookmark + 1000}" />
+                    <FormatDate  pattern="${/time_format}" timeZone="${/time_zone}" time="${/bookmark}" savePath="/bookmark" />
+                </If>
+
+                <If condition="${/total_exist_events} = ${/total_fetched_events}">
                     <Log type="INFO" message="[Boomi]: Next start time for fetch AuditLogs updated to: ${/bookmark}" />
                     <Log type="INFO" message="[Boomi]: Connecter is in sync with Boomi server, reseting fetch counter and going to sleep for ${/sleep_time_in_seconds} seconds..." />
                     <Set path="/fetch_counter" value="1" />
@@ -142,8 +158,9 @@
             </Else>
         </While>
     </Actions>
+
     <Tests>
-        <DNSResolutionTest host="https://api.boomi.com/api/rest/v1/${/account_id}" />
+        <DNSResolutionTest host="https://api.boomi.com" />
         <TCPConnectionTest host="https://api.boomi.com/api/rest/v1/${/account_id}" />
         <HTTPConnectionThroughProxyTest url="https://api.boomi.com/api/rest/v1/${/account_id}" expectedResponseStatus="404" />
     </Tests>
