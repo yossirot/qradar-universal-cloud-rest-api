@@ -1,12 +1,12 @@
 <Workflow name="Qmasters Boomi" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
-        <Parameter name="identifier" label="Boomi" description="The log source identifier to post the events to." required="true" />
-        <Parameter name="account_id" label="Instance Name" description="Boomi account ID." required="true" />
+        <Parameter name="identifier" label="Identifier" description="The log source identifier to post the events to." required="true" />
+        <Parameter name="account_id" label="Account ID" description="Boomi account ID." required="true" />
         <Parameter name="username" label="Username" description="Boomi user name." required="true" />
         <Parameter name="token" label="Token" description="Boomi user's Token." required="true" secret="true" />
         <Parameter name="time_zone" label="Time Zone" description="The timezone to be used." default="UTC" />
-        <Parameter name="start_fetch_time" label="Initial Event Start Time Date" description="Date time from which events will be initially retrieved." default="7" />
-        <Parameter name="sleep_time_in_seconds" label="Sleep Time in Seconds" description="The downtime for the connector after it is in sync with the server (Min: 0)." default="20" />
+        <Parameter name="start_fetch_time" label="Initial Event Start Time Date" description="Date time from which events will be initially retrieved." />
+        <Parameter name="sleep_time_in_seconds" label="Sleep Time in Seconds" description="The downtime for the connector after it is in sync with the server (Min: 0)." default="120" />
     </Parameters>
 
     <Actions>
@@ -25,10 +25,8 @@
 
         <!-- Initialize the last updated time filter for the first run. -->
         <Set path="/current_time" value="${time()}" />
-        <Log type="INFO" message="[Boomi]: Current Time - ${/current_time}" />
 
         <FormatDate  pattern="${/time_format}" timeZone="${/time_zone}" time="${/current_time}" savePath="/last_current_time" />
-        <Log type="INFO" message="[Boomi]: Formmated time - ${/current_time}" />
 
         <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
         <While condition="true">
@@ -109,7 +107,7 @@
 
                         <Set path="/fetch_counter" value="${/fetch_counter + 1}" />
 
-                        <Log type="INFO" message="[Boomi]: Posting fetched events..." />
+                        <Log type="INFO" message="[Boomi]: Posting ${/events_count} fetched events..." />
 
                         <PostEvents path="/events" source="${/identifier}" />
                     </If>

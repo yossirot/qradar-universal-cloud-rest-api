@@ -13,5 +13,5 @@
 	<!-- [start_fetch_time] [REQUIRED] - The date time from which events will be initially retrieved. -->
 	<Value name="start_fetch_time" value="2021-10-01T00:00:00Z"/>
 	<!-- [sleep_time_in_seconds] [OPTIONAL] [DEFAULT=20] - The downtime for the connector after it is in sync with the server (Min: 0). -->
-	<Value name="sleep_time_in_seconds" value="20"/>
+	<Value name="sleep_time_in_seconds" value="120"/>
 </WorkflowParameterValues>
