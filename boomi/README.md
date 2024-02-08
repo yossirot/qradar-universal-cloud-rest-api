@@ -6,7 +6,7 @@
 | `username`                      | Username                        | True                  | Authentication  | Boomi user name. |               |
 | `token`                  | Token                              | True                  | Authentication  | Boomi token. |               |
 | `time_zone`                      | Time Zone                               | False                 | String          | The timezone used in Boomi.                                                                      | `UTC`         |
-| `start_fetch_time`                | Initial Event Start Time Date                         | True                 | String          | The date time from which events will be initially retrieved, For example: "2020-10-16T15:21:57Z".               |        |
+| `start_fetch_time`                | Initial Event Start Time Date                         | False                 | String          | The date time from which events will be initially retrieved, For example: "2020-10-16T15:21:57Z".               |    1 Hour ago    |
 | `sleep_time_in_seconds`                | Sleep Time in Seconds | False                 | Number          | The downtime for the connector after it is in sync with the server (Min: 0).                          | `20` |
 
 ##
