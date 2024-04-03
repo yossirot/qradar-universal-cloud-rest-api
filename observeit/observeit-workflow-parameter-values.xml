@@ -24,5 +24,5 @@
 	<!-- [sleep_time_in_seconds] [OPTIONAL] [DEFAULT=20] - The downtime for the connector after it is in sync with the server (Min: 0). -->
 	<Value name="sleep_time_in_seconds" value="20"/>
 	<!-- [debug_mode] [OPTIONAL] [DEFAULT=false] - Set to `true` in case you want to get debug logs as event logs . -->
-	<Value name="debug_mode" value="true"/>
+	<Value name="debug_mode" value="false"/>
 </WorkflowParameterValues>
