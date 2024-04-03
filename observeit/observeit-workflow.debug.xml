@@ -9,8 +9,9 @@
         <Parameter name="events_per_poll" label="Events Per Poll" description="Max number of records to return per poll.  Note: a large fetch may cause timeout errors." default="100" />
         <Parameter name="initial_event_fetch_period" label="Initial Event Fetch Period in Days" description="Number of days in the past from which events will be initially retrieved." default="7" />
         <Parameter name="report_type" label="Report Type" required="true" description="The report type to poll. One of: `alert_v0`,`audit_configuration_v0`,`audit_logins_v0`,`audit_saved_sessions_v0`,`audit_session_playback_v0`,`system_events_v0`,`user_command_activity_with_output_v0`,`user_command_output_stream_v0`,`user_dba_activity_v0`,`user_file_activity_v0`,`user_interface_activity_v0`,`user_messaging_actions_activity_v0`,`user_session_v0`." />
-        <Parameter name="piis_to_exclude" label="Personal Identifiable Information to Exclude" description="Comma-separated list of Personal Identifiable Information (PII) to exclude." default="loginName,secondaryLoginName,endpointName,remoteHostName,windowTitle,accessedUrl,domainName,secondaryDomainName,remoteAddress,sqlUserName,sessionServerName,sessionLoginName,savedSessionName,operatorUsername,operatorDomainName,userName,machineName" />
+        <Parameter name="piis_to_exclude" label="Personal Identifiable Information to Exclude" description="Comma-separated list of Personal Identifiable Information (PII) to exclude." default="" />
         <Parameter name="sleep_time_in_seconds" label="Sleep Time in Seconds" description="The downtime for the connector after it is in sync with the server (Min: 0)." default="20" />
+        <Parameter name="debug_mode" label="Debug Mode" description=" Set to `true` in case you want to get debug logs as event logs." default="false" />
     </Parameters>
 
     <Actions>
