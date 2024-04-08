@@ -13,4 +13,3 @@
 	<!-- [initial_fetch_period] [OPTIONAL] [DEFAULT=7] - Number of days in the past from which events will be initially retrieved. -->
 	<Value name="initial_fetch_period" value="7"/>
 </WorkflowParameterValues>
-<?xml version="1.0" encoding="UTF-8" ?>
