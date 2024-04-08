@@ -1,14 +1,14 @@
 <Workflow name="Qmasters Symantec-EDR" version="1.0" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V2">
     <Parameters>
         <Parameter name="identifier" label="Log Source Identifier" description="The log source identifier to post the events to." required="true" />
-		<Parameter name="instance_name" label="Instance Name" description="Symantec-EDR instance name." default="api.sep.securitycloud.symantec.com" required="false" />
-		<Parameter name="api_key" label="Username" description="Symantec-EDR API key." required="true" secret="true"/>
+        <Parameter name="instance_name" label="Instance Name" description="Symantec-EDR instance name." default="api.sep.securitycloud.symantec.com" required="false" />
+        <Parameter name="api_key" label="Username" description="Symantec-EDR API key." required="true" secret="true"/>
         <Parameter name="time_zone" label="Time Zone" description="The timezone to be used." default="UTC" />
         <Parameter name="events_per_fetch" label="Events Per Fetch" description="Max number of records to return per fetch. Note: a large fetch may cause timeout errors." default="100" />
         <Parameter name="initial_fetch_period" label="Initial Event Fetch Period in Days" description="Number of days in the past from which events will be initially retrieved." default="7" />
     </Parameters>
     <Actions>
-		<!-- Clear the log source status before a new workflow run starts. -->
+        <!-- Clear the log source status before a new workflow run starts. -->
         <ClearStatus />
         <Set path="/events_count" value="0" />
         <Set path="/next" value="0" />
@@ -27,12 +27,12 @@
 
         <Log type="INFO" message="[Symantec-EDR]: Authenticating, fetching bearer token..." />
 
-		<!-- Get new token from Symantec-EDR. -->
+        <!-- Get new token from Symantec-EDR. -->
         <CallEndpoint url="https://${/instance_name}/v1/oauth2/tokens" method="POST" savePath="/response" >
             <!-- <SSLConfiguration allowUntrustedServerCertificate="true" /> -->
-			<RequestHeader name="authorization" value="${/api_key}" />
-			<RequestHeader name="content-type" value="application/x-www-form-urlencoded" />
-			<RequestHeader name="accept" value="application/json" />
+            <RequestHeader name="authorization" value="${/api_key}" />
+            <RequestHeader name="content-type" value="application/x-www-form-urlencoded" />
+            <RequestHeader name="accept" value="application/json" />
         </CallEndpoint>
 
         <!-- Handle token generation error. -->
@@ -43,7 +43,7 @@
 
         <Log type="INFO" message="[Symantec-EDR]: Bearer token received!" />
         <!-- Save the bearer token. -->
-		<Set path="/bearer_token" value="${/response/body/access_token}" />
+        <Set path="/bearer_token" value="${/response/body/access_token}" />
 
         <!-- Pagination handling: aslong as events are returned, keep fetching data. -->
         <Set path="/start_run" value="${time()}" />
@@ -114,7 +114,7 @@
             <Log type="ERROR" message="Symantec-EDR - status code ${/response/status_code}, abort at get incidents. Reason: ${/response/body}" />
             <Abort reason="${/response}" />
         </Else>
-	</Actions>
+    </Actions>
 
     <Tests>
         <DNSResolutionTest host="${/instance_name}" />
