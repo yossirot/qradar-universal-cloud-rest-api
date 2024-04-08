@@ -5,8 +5,7 @@
 	<!-- [instance_name] [REQUIRED] [DEFAULT=api.sep.securitycloud.symantec.com]- The Symantec-EDR API instance name. -->
 	<Value name="instance_name" value="api.sep.securitycloud.symantec.com"/>
 	<!-- [api_key] [REQUIRED] -->
-	<Value name="api_key" value="Basic
-	"/>
+	<Value name="api_key" value=""/>
 	<!-- [time_zone] [OPTIONAL] [DEFAULT=UTC] - The time zone to be used. -->
 	<Value name="time_zone" value="UTC"/>
 	<!-- [events_per_fetch] [OPTIONAL] [DEFAULT=1000] - Max number of records to return per fetch. Note: a large fetch may cause timeout errors. -->
