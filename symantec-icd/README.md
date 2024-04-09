@@ -1,4 +1,4 @@
-# Symantec-ICD Connector for QRadar
+# Symantec-ICD Incidents Connector for QRadar
 
 ## Getting the Symantec Endpoint Security API Key
 
