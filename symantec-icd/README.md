@@ -1,8 +1,8 @@
-# Symantec-EDR Connector for QRadar
+# Symantec-ICD Connector for QRadar
 
-# Getting the Symantec Endpoint Security API Key
+## Getting the Symantec Endpoint Security API Key
 
-## Step 1: Accessing the Symantec ICDm Cloud Console
+### Step 1: Accessing the Symantec ICDm Cloud Console
 
 1. **Navigate to Integration**: In the Symantec ICDm cloud console, select the `Integration` option.
 
@@ -23,39 +23,39 @@ Ensure you store the Client Secret securely as it provides authenticated access 
 For further details on managing client applications or using the API, refer to the [Symantec Documentation](https://apidocs.securitycloud.symantec.com/#).
 
 
-## QRadar Log Source Configuration for Symantec-EDR
+### QRadar Log Source Configuration for Symantec-ICD
 
-To integrate Symantec-EDR with QRadar for data ingestion, follow these steps to configure the log source:
+To integrate Symantec-ICD with QRadar for data ingestion, follow these steps to configure the log source:
 
 1. **Access QRadar**: Log into your QRadar system and navigate to the admin panel.
 
-2. **DSM Creation**: Open the DSM editor app and select "Create New". Name it appropriately, for example, "Symantec-EDR".
+2. **DSM Creation**: Open the DSM editor app and select "Create New". Name it appropriately, for example, "Symantec-ICD".
 
 3. **Log Source Setup**: Go to the QRadar Log Source Management app within the admin panel and initiate a new log source setup.
 
-4. **Select Log Source Type**: Choose "Single Log Source" and for the log source type, select "Symantec-EDR".
+4. **Select Log Source Type**: Choose "Single Log Source" and for the log source type, select "Symantec-ICD".
 
 5. **Protocol Selection**: When prompted for the protocol type, select "Universal Cloud REST API".
 
 6. **Configure Log Source**: Enter a memorable name for the log source and proceed to configure protocol parameters.
 
 7. **Protocol Parameters Configuration**:
-   - Use the instance name and API key from your Symantec-EDR account to configure the connection.
-   - Input the customized workflow XML tailored for Symantec-EDR integration, ensuring fields such as `api_key`, `time_zone`, and `events_per_fetch` are correctly populated.
+   - Use the instance name and API key from your Symantec-ICD account to configure the connection.
+   - Input the customized workflow XML tailored for Symantec-ICD integration, ensuring fields such as `api_key`, `time_zone`, and `events_per_fetch` are correctly populated.
 
-8. **Testing**: Use the test functionality to verify the connection and data retrieval from Symantec-EDR.
+8. **Testing**: Use the test functionality to verify the connection and data retrieval from Symantec-ICD.
 
-9. **Finish Configuration**: Finalize the setup and start monitoring Symantec-EDR events within QRadar.
+9. **Finish Configuration**: Finalize the setup and start monitoring Symantec-ICD events within QRadar.
 
-## Symantec-EDR Parameters Configuration
+### Symantec-ICD Parameters Configuration
 
 | Parameter              | Description                                       |
 |------------------------|---------------------------------------------------|
-| `identifier`           | The log source identifier for Symantec-EDR.       |
-| `instance_name`        | The Symantec-EDR API instance name.                   |
-| `api_key`              | The API key for authenticating with Symantec-EDR. |
+| `identifier`           | The log source identifier for Symantec-ICD.       |
+| `instance_name`        | The Symantec-ICD API instance name.                   |
+| `api_key`              | The API key for authenticating with Symantec-ICD. |
 | `time_zone`            | The time zone used for log timestamps.            |
 | `events_per_fetch`     | Maximum number of records retrieved per fetch.    |
 | `initial_fetch_period` | Lookback period for initial event retrieval.      |
 
-This guide aims to streamline the integration process of Symantec-EDR with QRadar, ensuring a smooth data ingestion flow for better threat management and analysis.
+This guide aims to streamline the integration process of Symantec-ICD with QRadar, ensuring a smooth data ingestion flow for better threat management and analysis.
